@@ -1,1676 +1,940 @@
-# ECOSYSTEM SIMULATION GAME
-## Wireframes, Gameplay, Rules & Mechanisms
-
----
-
-## 1. GAME CONCEPT OVERVIEW
-
-**Core Idea:** A mobile ecosystem simulation where players strategically place organisms during setup, then watch the ecosystem either thrive or collapse during an automated simulation.
-
-**Target Platform:** Mobile (iOS/Android) - Portrait mode, touch-based
-
-**Victory Condition:** Create a self-sustaining ecosystem that survives for 10 game days (5 minutes real-time at 1x speed)
-
-**Failure Condition:** Any species goes extinct
-
----
-
-## 2. SCREEN WIREFRAMES
-
-### WIREFRAME A: SETUP PHASE
-```
-┌─────────────────────────────────────┐
-│  ⚙️         SETUP PHASE          ℹ️ │  ← Top Bar (60px)
-├─────────────────────────────────────┤
-│                                     │
-│         [GAME FIELD]                │
-│      20x20 Grid System              │
-│      Uniform Green Background       │
-│                                     │
-│    ┌───────────────────┐            │
-│    │   SAFE ZONE       │            │
-│    │   (green dashed)  │            │
-│    └───────────────────┘            │
-│                                     │
-│  [RISK]              [RISK]         │  ← Field Container
-│  (red)               (red)          │     (Flexible height)
-│                                     │     Solid green (#90ee90)
-│  🌱 🌱 🐰 🦊                        │  ← Organisms placed
-│     🌱 🐰                           │     by player
-│                                     │
-│  [RISK]              [RISK]         │
-│  (red)               (red)          │
-│                                     │
-├─────────────────────────────────────┤
-│  Grass    Rabbits    Foxes          │  ← Stats Bar (60px)
-│   [15]      [4]       [2]           │     Live population counts
-├─────────────────────────────────────┤
-│  Trial Mode  [Toggle Switch OFF]    │
-│                                     │
-│  ┌──────┐  ┌──────┐  ┌──────┐      │  ← Controls Panel
-│  │🌱 Grass│ │🐰 Rabbit│ │🦊 Fox│     │     (Variable height)
-│  └──────┘  └──────┘  └──────┘      │
-│   [ACTIVE]   [     ]   [     ]      │
-│                                     │
-│  ┌──────────────┐  ┌──────────┐    │
-│  │START SIMULATION│ │  CLEAR   │    │
-│  └──────────────┘  └──────────┘    │
-└─────────────────────────────────────┘
-```
-
-**Key Elements:**
-- **Top Bar:** Phase indicator, info button
-- **Field:** Visual grid with uniform green background - grass can grow anywhere
-- **Trial Mode Zones:** Optional guidance overlay (for strategic placement, not growth restrictions)
-- **Tool Selection:** Three buttons to choose organism type
-- **Action Buttons:** Start simulation or clear field
-
----
-
-### WIREFRAME B: PLAYING PHASE
-```
-┌─────────────────────────────────────┐
-│  ⚙️        ECOSYSTEM          📊 📍 │  ← Top Bar
-├─────────────────────────────────────┤
-│                                     │
-│  [Population Graph Overlay]         │
-│  ┌─────────────────────────┐        │
-│  │  /\    /\               │        │
-│  │ /  \  /  \    /\        │        │
-│  │/    \/    \  /  \       │        │
-│  └─────────────────────────┘        │
-│                                     │
-│     🌱 🌱 🌱 🌱 🌱                  │  ← Uniform green field
-│  🐰 🌱 🌱 🦊 🌱 🌱                  │  ← Field with moving
-│     🌱 🐰 🌱 🌱 🐰                  │     organisms
-│  🌱 🌱 🌱 🌱 🌱 🦊                  │     (#90ee90 background)
-│  🐰 🌱 🌱 🌱 🌱 🌱                  │
-│                                     │
-│  [Heat Map Overlay - Optional]      │
-│   🟢 🟢 🟡 🟡 🔴                    │
-│                                     │
-├─────────────────────────────────────┤
-│  Grass  Rabbits  Foxes   Time       │  ← Stats Bar
-│   [42]    [18]    [6]    [2:34]     │
-├─────────────────────────────────────┤
-│  ┌──────────┐  ┌──────────┐         │
-│  │⏸️ PAUSE │  │🔄 RESET  │         │  ← Controls Panel
-│  └──────────┘  └──────────┘         │
-│                                     │
-│  Speed              [2.0x]          │
-│  [────●───────]                     │
-│  0.5x  1x  2x  4x                   │
-└─────────────────────────────────────┘
-```
-
-**Key Elements:**
-- **Graph Toggle (📊):** Shows population trends over time
-- **Heat Map Toggle (📍):** Shows ecosystem health by region
-- **Animated Organisms:** Moving, hunting, eating, reproducing
-- **Uniform Background:** Solid green field where grass can grow anywhere
-- **Time Counter:** Shows elapsed game time
-- **Speed Slider:** Control simulation speed
-- **Pause/Resume:** Stop and observe
-
----
-
-### WIREFRAME C: VICTORY MODAL
-```
-┌─────────────────────────────────────┐
-│                                     │
-│        [Dimmed Background]          │
-│                                     │
-│     ┌─────────────────────┐         │
-│     │                     │         │
-│     │      🏆 Victory!    │         │
-│     │                     │         │
-│     │  Your ecosystem     │         │
-│     │  survived for       │         │
-│     │  10 days!           │         │
-│     │                     │         │
-│     │  ┌───────────────┐  │         │
-│     │  │  PLAY AGAIN   │  │         │
-│     │  └───────────────┘  │         │
-│     │                     │         │
-│     └─────────────────────┘         │
-│                                     │
-└─────────────────────────────────────┘
-```
-
----
-
-### WIREFRAME D: GAME OVER MODAL
-```
-┌─────────────────────────────────────┐
-│                                     │
-│        [Dimmed Background]          │
-│                                     │
-│     ┌─────────────────────┐         │
-│     │                     │         │
-│     │  💀 Ecosystem       │         │
-│     │     Collapsed       │         │
-│     │                     │         │
-│     │  All rabbits died!  │         │
-│     │  Foxes will soon    │         │
-│     │  follow.            │         │
-│     │                     │         │
-│     │  ┌───────────────┐  │         │
-│     │  │  TRY AGAIN    │  │         │
-│     │  └───────────────┘  │         │
-│     │                     │         │
-│     └─────────────────────┘         │
-│                                     │
-└─────────────────────────────────────┘
-```
-
----
-
-## 3. TWO-LAYER GRID SYSTEM
-
-### Visual Representation
-```
-TILE STRUCTURE (Each of 400 tiles on 20x20 grid)
-
-┌─────────────────┐
-│  Animal Layer   │  ← Only ONE animal per tile
-│   (Top Layer)   │     🐰 Rabbit OR 🦊 Fox
-│                 │     (NOT both)
-├─────────────────┤
-│  Ground Layer   │  ← Grass only
-│  (Bottom Layer) │     🌱 Grass or Empty
-└─────────────────┘
-
-✅ ALLOWED COMBINATIONS:
-• Empty ground + Empty animal = Bare tile
-• Grass + Empty = Just grass
-• Empty + Rabbit = Rabbit on bare ground
-• Empty + Fox = Fox on bare ground
-• Grass + Rabbit = Rabbit standing on grass ⭐
-• Grass + Fox = Fox standing on grass ⭐
-
-❌ NOT ALLOWED:
-• Rabbit + Fox on same tile (only one animal per tile)
-• Two rabbits on same tile
-• Two foxes on same tile
-```
-
-### Grid Layout
-```
-20 x 20 GRID = 400 TOTAL TILES
-
-      0   1   2   3   4  ...  19
-    ┌───┬───┬───┬───┬───┬───┬───┐
-  0 │   │🌱 │   │🌱 │🌱 │   │   │
-    ├───┼───┼───┼───┼───┼───┼───┤
-  1 │🌱 │🐰 │🌱 │   │🌱 │🌱 │   │
-    ├───┼───┼───┼───┼───┼───┼───┤
-  2 │   │🌱 │🌱 │🦊 │🌱 │   │🌱 │
-    ├───┼───┼───┼───┼───┼───┼───┤
-  3 │🌱 │   │🐰 │🌱 │   │🌱 │   │
-    ├───┼───┼───┼───┼───┼───┼───┤
-  . │   │   │   │   │   │   │   │
-  . │   │   │   │   │   │   │   │
-  19│   │   │   │   │   │   │   │
-    └───┴───┴───┴───┴───┴───┴───┘
-```
-
-**Tile Sizing:**
-- Grid: 20 × 20 tiles
-- Tile size: Calculated dynamically (screen width ÷ 20)
-- Example on 375px screen: ~18.75px per tile
-
-**Organism Visual Sizes:**
-- 🌱 Grass: 10% of tile size (~1.9px diameter)
-- 🐰 Rabbit: 25% of tile size (~4.7px diameter)
-- 🦊 Fox: 50% of tile size (~9.4px diameter)
-
-*Size hierarchy shows food chain position*
-
----
-
-## 4. GAMEPLAY FLOW DIAGRAM
-
-```
-┌─────────────────┐
-│  GAME STARTS    │
-│  Setup Phase    │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────────────────────┐
-│  PLAYER PLACES ORGANISMS        │
-│                                 │
-│  • Touch & hold to place        │
-│  • Select tool (Grass/Rabbit/Fox)│
-│  • Unlimited placement          │
-│  • Optional: Enable Trial Mode  │
-│  • Clear & restart anytime      │
-└────────┬────────────────────────┘
-         │
-         ▼
-    [Start Simulation]
-         │
-         ▼
-┌─────────────────────────────────┐
-│  SIMULATION PHASE               │
-│  (Player observes only)         │
-│                                 │
-│  Every frame (60 FPS):          │
-│  ├─ Move organisms              │
-│  ├─ Check hunger timers         │
-│  ├─ Process feeding             │
-│  ├─ Process reproduction        │
-│  ├─ Process deaths              │
-│  ├─ Grow grass                  │
-│  └─ Update UI                   │
-└────────┬────────────────────────┘
-         │
-         ▼
-    [Check Win/Loss]
-         │
-    ┌────┴────┐
-    │         │
-    ▼         ▼
-┌───────┐  ┌──────────┐
-│VICTORY│  │GAME OVER │
-│       │  │          │
-│10 days│  │Extinction│
-│passed │  │occurred  │
-└───┬───┘  └────┬─────┘
-    │           │
-    └─────┬─────┘
-          │
-          ▼
-    [Play Again?]
-          │
-          ▼
-    [Reset to Setup]
-```
-
----
-
-## 5. SPECIES MECHANICS
-
-### 🌱 GRASS (Producer)
-
-**Visual:**
-- Size: 10% of tile (smallest)
-- Color: Bright green (#22c55e)
-- Icon: 🌱
-- Movement: None (stationary)
-
-**Behavior:**
-```
-GROWTH CYCLE:
-Every 2 seconds → Attempt to spread
-  │
-  ▼
-Select random adjacent tile
-  │
-  ▼
-Is ground layer empty? ────NO───→ [No growth]
-  │
-  YES
-  ▼
-Is total grass < 70% of field? ───NO───→ [No growth]
-  │
-  YES
-  ▼
-Spawn new grass on ground layer
-```
-
-**Rules:**
-- Spreads to 1 adjacent tile every 2 seconds
-- Maximum coverage: 70% of field (280 tiles on 20×20)
-- Only spreads to empty ground layer (animals can be present)
-- Eaten grass regrows after 15 seconds
-- Dies when eaten by rabbit
-
-**Statistics:**
-- Growth rate: 15 new tiles per day per grass patch
-- Regrowth time: 15 seconds after consumption
-- Max population: 280 tiles
-
----
-
-### 🐰 RABBIT (Herbivore)
-
-**Visual:**
-- Size: 25% of tile (medium)
-- Color (Healthy): Bright orange (#fb923c)
-- Color (Hungry): Faded orange (#fed7aa, 60% opacity)
-- Icon: 🐰
-- Movement: 2 tiles per second
-
-**Behavior Flow:**
-```
-RABBIT AI LOOP (Every Frame):
-
-Check hunger timer
-  │
-  ├─ < 6 seconds → WELL-FED
-  │    │
-  │    ▼
-  │  Move randomly (patrol)
-  │
-  └─ > 6 seconds → HUNGRY
-       │
-       ▼
-   Visual: Fade color, reduce opacity
-       │
-       ▼
-   Search for grass (3-tile radius)
-       │
-   ┌───┴───┐
-   │       │
-   YES     NO
-   │       │
-   ▼       ▼
-Move toward  Move randomly
-nearest grass  (wander)
-   │
-   ▼
-On tile with grass?
-   │
-   YES
-   ▼
-EAT GRASS
-├─ Remove grass from ground layer
-├─ Reset hunger timer to 0
-└─ Continue
-
-Check hunger timer > 12 seconds?
-   │
-   YES
-   ▼
-DIE (remove from animal layer)
-```
-
-**Reproduction:**
-```
-RABBIT REPRODUCTION CHECK:
-
-Every frame:
-  │
-  ▼
-Is reproduction cooldown ≤ 0?
-  │
-  YES
-  ▼
-Is rabbit well-fed? (eaten in last 6 sec)
-  │
-  YES
-  ▼
-Is adjacent tile available? (empty animal layer)
-  │
-  YES
-  ▼
-Check density: < 8 rabbits within 5-tile radius?
-  │
-  YES
-  ▼
-SPAWN BABY RABBIT
-├─ Place in animal layer of adjacent tile
-├─ Reset cooldown to 10 seconds
-└─ Baby starts with full health
-```
-
-**Rules:**
-- Detection range: 3 tiles (can see grass within 3-tile radius)
-- Movement speed: 2 tiles/second
-- Hunger timer: Must eat every 12 seconds or die
-- Eating: Consumes grass on current tile (same tile, different layers)
-- Consumption rate: ~2.5 grass patches per day
-- Reproduction: 1 baby every 10 seconds when well-fed
-- Birth rate: 3 babies per day (ideal conditions)
-- Density limit: Cannot reproduce if >8 rabbits within 5 tiles
-- Avoids foxes (cannot move to tile with fox)
-
-**Statistics:**
-- Doubling time: ~13 seconds (ideal conditions)
-- Growth pattern: Exponential when food abundant
-- Carrying capacity: Limited by grass availability
-
----
-
-### 🦊 FOX (Carnivore)
-
-**Visual:**
-- Size: 50% of tile (largest)
-- Color (Healthy): Bright red (#ef4444)
-- Color (Hungry): Faded pink (#fca5a5)
-- Icon: 🦊
-- Movement: 4 tiles per second (2× faster than rabbits)
-
-**Behavior Flow:**
-```
-FOX AI LOOP (Every Frame):
-
-Check if on same tile as rabbit
-  │
-  YES
-  ▼
-EAT RABBIT
-├─ Remove rabbit from animal layer
-├─ Fox occupies tile
-├─ Reset hunger timer to 0
-└─ Continue
-  │
-  NO
-  ▼
-Check hunger timer
-  │
-  ├─ < 10 seconds → WELL-FED
-  │    │
-  │    ▼
-  │  Move randomly (patrol)
-  │
-  └─ > 10 seconds → HUNGRY
-       │
-       ▼
-   Visual: Fade color, reduce opacity
-       │
-       ▼
-   Search for rabbits (5-tile radius)
-       │
-   ┌───┴───┐
-   │       │
-   YES     NO
-   │       │
-   ▼       ▼
-Chase nearest  Move randomly
-rabbit (HUNT)   (patrol)
-   │
-   ▼
-Move toward rabbit at 4 tiles/sec
-   │
-   ▼
-Catch rabbit when on same tile
-
-Check hunger timer > 25 seconds?
-   │
-   YES
-   ▼
-DIE (remove from animal layer)
-```
-
-**Reproduction:**
-```
-FOX REPRODUCTION CHECK:
-
-Every frame:
-  │
-  ▼
-Is reproduction cooldown ≤ 0?
-  │
-  YES
-  ▼
-Is fox well-fed? (eaten in last 10 sec)
-  │
-  YES
-  ▼
-Are ≥3 rabbits within 8-tile radius? (prey available)
-  │
-  YES
-  ▼
-Is adjacent tile available? (empty animal layer)
-  │
-  YES
-  ▼
-Check density: < 4 foxes within 5-tile radius?
-  │
-  YES
-  ▼
-SPAWN BABY FOX
-├─ Place in animal layer of adjacent tile
-├─ Reset cooldown to 30 seconds
-└─ Baby can hunt immediately
-```
-
-**Rules:**
-- Detection range: 5 tiles (can see rabbits within 5-tile radius)
-- Movement speed: 4 tiles/second (2× rabbit speed)
-- Hunger timer: Must eat every 25 seconds or die
-- Hunting success: 90% when actively pursuing
-- Consumption rate: ~1.2 rabbits per day
-- Reproduction: 1 baby every 30 seconds when well-fed
-- Birth rate: 1 baby per day (ideal conditions)
-- Reproduction requires: ≥3 nearby rabbits (prey availability)
-- Density limit: Cannot reproduce if >4 foxes within 5 tiles
-- Cannot occupy same tile as another fox
-
-**Statistics:**
-- Doubling time: ~30 seconds (ideal conditions)
-- Growth pattern: Moderate speed
-- Carrying capacity: Limited by rabbit population
-
----
-
-## 6. TIME SYSTEM
-
-```
-GAME TIME STRUCTURE:
-
-1 Game Day = 30 seconds real-time (at 1x speed)
-
-Victory requires: 10 Game Days
-                = 300 seconds
-                = 5 minutes (at 1x speed)
-
-Speed Multipliers:
-├─ 0.5x → 10 minutes real-time
-├─ 1.0x → 5 minutes real-time
-├─ 2.0x → 2.5 minutes real-time
-└─ 4.0x → 1.25 minutes real-time
-```
-
-**Frame Rate:**
-- Visual rendering: 60 FPS
-- AI logic updates: 30 FPS (every 2 frames)
-- Grass growth checks: Every 5 seconds
-- Reproduction checks: Every frame (but cooldown enforced)
-
----
-
-## 7. SPATIAL MECHANICS & STRATEGY
-
-### Detection Ranges
-```
-RABBIT DETECTION (3 tiles):
-        □ □ □ □ □
-        □ ■ ■ ■ □
-        □ ■ 🐰 ■ □
-        □ ■ ■ ■ □
-        □ □ □ □ □
-Legend: ■ = Detection zone
-
-FOX DETECTION (5 tiles):
-    □ □ □ □ □ □ □ □ □ □ □
-    □ □ ■ ■ ■ ■ ■ ■ ■ □ □
-    □ ■ ■ ■ ■ ■ ■ ■ ■ ■ □
-    □ ■ ■ ■ ■ ■ ■ ■ ■ ■ □
-    □ ■ ■ ■ ■ 🦊 ■ ■ ■ ■ □
-    □ ■ ■ ■ ■ ■ ■ ■ ■ ■ □
-    □ ■ ■ ■ ■ ■ ■ ■ ■ ■ □
-    □ □ ■ ■ ■ ■ ■ ■ ■ □ □
-    □ □ □ □ □ □ □ □ □ □ □
-```
-
-### Trial Mode Zones
-```
-FIELD LAYOUT (20x20):
-Uniform green background - grass grows equally everywhere
-
-┌─────────────────────────────┐
-│ 🔴 RISK ZONE  │  🔴 RISK    │
-│ (Corner)      │  (Corner)   │
-│               │             │
-│ ────────────────────────    │
-│ │                        │  │
-│ │   🟢 SAFE ZONE        │  │
-│ │   (Center 50%)         │  │
-│ │   Optimal placement    │  │
-│ │                        │  │
-│ ────────────────────────    │
-│               │             │
-│ 🔴 RISK ZONE  │  🔴 RISK    │
-│ (Corner)      │  (Corner)   │
-└─────────────────────────────┘
-
-NOTE: Trial mode zones are STRATEGIC GUIDES only.
-They show optimal placement for animal survival,
-NOT restrictions on grass growth.
-
-🟢 SAFE ZONE (Center 50% of field):
-• Organisms can reach each other quickly
-• Lower starvation risk
-• Better for beginners
-• Grass grows equally here as anywhere else
-
-🔴 RISK ZONES (4 corners, 25% × 25% each):
-• Organisms may be isolated
-• High starvation risk
-• Far from other zones
-• Grass still grows normally here
-
-Background Color: Uniform #90ee90 (light green) across entire field
-```
-
-### Strategic Placement Patterns
-
-**Pattern 1: Quadrant System (Beginner)**
-```
-┌──────────┬──────────┐
-│ Region 1 │ Region 2 │
-│          │          │
-│ 25🌱     │ 25🌱     │
-│ 4🐰      │ 4🐰      │
-│ 2🦊      │ 2🦊      │
-├──────────┼──────────┤
-│ Region 3 │ Region 4 │
-│          │          │
-│ 25🌱     │ 25🌱     │
-│ 4🐰      │ 4🐰      │
-│ 2🦊      │ 2🦊      │
-└──────────┴──────────┘
-
-Advantage: If one region fails, others survive
-Total: 100 grass, 16 rabbits, 8 foxes
-```
-
-**Pattern 2: Central Hub**
-```
-        🌱 🌱 🌱 🌱
-      🌱   🐰 🐰   🌱
-    🌱   🐰 🦊 🦊 🐰   🌱
-    🌱   🐰 🦊 🦊 🐰   🌱
-      🌱   🐰 🐰   🌱
-        🌱 🌱 🌱 🌱
-
-Center: Foxes patrol
-Middle ring: Rabbits graze
-Outer ring: Grass (60% coverage)
-```
-
-**Pattern 3: Multi-Zone Clusters**
-```
-  🌱         🌱          🌱
-  🌱🐰🐰     🌱🐰      🌱🐰🐰
-  🌱 🦊      🌱        🌱 🦊
-  
-         🌱              🌱
-       🌱🐰🐰          🌱🐰
-       🌱 🦊           🌱
-
-Creates natural territories
-Foxes positioned between clusters
-```
-
----
-
-## 8. BALANCE & RATIOS
-
-### Theoretical Equilibrium
-```
-IDEAL RATIO: 10 Grass : 3 Rabbits : 1 Fox
-
-For 20×20 grid (400 tiles):
-┌──────────────────────────────┐
-│ Grass:   120-140 tiles       │
-│          (30-35% coverage)   │
-│                              │
-│ Rabbits: 35-45 animals       │
-│          (8.75-11.25%)       │
-│                              │
-│ Foxes:   10-15 animals       │
-│          (2.5-3.75%)         │
-└──────────────────────────────┘
-
-Why this works:
-• Grass growth (720-840 tiles/day potential)
-  >> Rabbit consumption (87-112 tiles/day)
-• Rabbit births (26-34/day)
-  >> Fox consumption (12-18/day)
-• Slow fox reproduction prevents overhunting
-```
-
-### Resource Flow
-```
-ENERGY FLOW THROUGH ECOSYSTEM:
-
-☀️ SUNLIGHT
-    │
-    ▼
-🌱 GRASS (Producer)
-├─ Grows: 15 tiles/day per patch
-├─ Max: 280 tiles (70% coverage)
-└─ Regrows: 15 seconds after eaten
-    │
-    ▼ (Consumed by)
-🐰 RABBIT (Herbivore)
-├─ Eats: ~2.5 grass/day
-├─ Reproduces: 3 babies/day
-└─ Dies: Starvation (12s) or predation
-    │
-    ▼ (Hunted by)
-🦊 FOX (Predator)
-├─ Eats: ~1.2 rabbits/day
-├─ Reproduces: 1 baby/day
-└─ Dies: Starvation (25s)
-```
-
----
-
-## 9. POPULATION DYNAMICS
-
-### Healthy Ecosystem Cycle
-```
-PHASE 1: GROWTH
-├─ Grass spreads across field
-├─ Rabbits multiply (food abundant)
-├─ Foxes multiply (prey abundant)
-└─ Populations rising
-    │
-    ▼
-PHASE 2: PEAK
-├─ Rabbit population peaks
-├─ Heavy grass consumption
-├─ Fox population rises
-└─ Maximum populations
-    │
-    ▼
-PHASE 3: DECLINE
-├─ Grass depleted in areas
-├─ Some rabbits starve
-├─ Foxes struggle to find prey
-└─ Populations falling
-    │
-    ▼
-PHASE 4: RECOVERY
-├─ Grass regrows in cleared areas
-├─ Rabbit population stabilizes (lower)
-├─ Fox population adjusts downward
-└─ Return to Phase 1
-
-🔄 CYCLE REPEATS = VICTORY
-```
-
-### Population Graph
-```
-Population
-    │
-120 │     🌱 Grass
-    │    ╱╲  ╱╲  ╱╲
-100 │   ╱  ╲╱  ╲╱  ╲
-    │  ╱            ╲
- 80 │ ╱              
-    │╱     🐰 Rabbits
- 60 │    ╱╲    ╱╲
-    │   ╱  ╲  ╱  ╲
- 40 │  ╱    ╲╱    ╲
-    │ ╱
- 20 │╱  🦊 Foxes
-    │  ╱╲   ╱╲
-  0 │─╱──╲─╱──╲──────────
-    └─────────────────────→ Time
-    0  1  2  3  4  5  days
-
-Healthy: Oscillating cycles continue
-Unhealthy: Cycles become extreme → collapse
-```
-
----
-
-## 10. FAILURE SCENARIOS
-
-### Scenario 1: Fox Overpopulation
-```
-Timeline:
-Setup:    ████████████ (Too many foxes: 15+)
-          🐰🐰🐰🐰🐰   (Normal rabbits: 20)
-
-Day 1:    ████████████
-          🐰🐰🐰       (Foxes hunt rapidly)
-
-Day 2:    ████████████
-          💀           (Rabbits extinct)
-                       
-Result:   ❌ GAME OVER
-Reason:   "All rabbits died! Foxes will soon follow."
-```
-
-### Scenario 2: Grass Depletion
-```
-Timeline:
-Setup:    🌱🌱🌱       (Too little grass: <60)
-          🐰🐰🐰🐰🐰🐰🐰🐰🐰 (Too many rabbits: 50+)
-
-Day 1-2:  💀💀💀       (Rabbits eat all grass)
-          🐰🐰🐰🐰🐰🐰🐰🐰🐰
-
-Day 3:    ___          (Grass can't regrow fast enough)
-          🐰🐰🐰🐰🐰🐰
-
-Day 4:    ___
-          💀💀💀       (Mass starvation)
-
-Result:   ❌ GAME OVER
-Reason:   "All grass was consumed! The ecosystem collapsed."
-```
-
-### Scenario 3: No Predator Control
-```
-Timeline:
-Setup:    🌱🌱🌱🌱🌱🌱 (Normal grass: 100)
-          🐰🐰🐰       (Normal rabbits: 15)
-          🦊           (Too few foxes: 1)
-
-Day 1-2:  🌱🌱🌱🌱     
-          🐰🐰🐰🐰🐰🐰🐰🐰 (Rabbit explosion: 60+)
-          🦊
-
-Day 3:    💀💀💀       (All grass consumed)
-          🐰🐰🐰🐰🐰🐰🐰🐰
-          🦊
-
-Day 4:    ___
-          💀💀💀       (Mass rabbit starvation)
-          💀 (Fox dies after rabbits)
-
-Result:   ❌ GAME OVER
-Reason:   "All grass was consumed! The ecosystem collapsed."
-```
-
-### Scenario 4: Corner Isolation
-```
-Timeline:
-Setup:    Field layout (20x20 grid)
-          
-          🦊🦊              (Foxes in corner 0,0)
-          🦊🦊
-          
-          
-          
-          
-                        🐰🐰
-                        🐰🐰  (Rabbits in corner 19,19)
-
-Distance: 28 tiles diagonal
-Fox detection: 5 tiles only
-
-Day 1:    🦊🦊 ← wander randomly for 20+ seconds
-          🦊🦊
-          
-                        🐰🐰
-                        🐰🐰
-
-25 sec:   💀💀 (Foxes starve before finding rabbits)
-          💀💀
-          
-                        🐰🐰
-                        🐰🐰
-
-Result:   ❌ GAME OVER
-Reason:   "All foxes died! The ecosystem is incomplete."
-```
-
----
-
-## 11. WIN/LOSS CONDITIONS
-
-### 🏆 VICTORY CONDITIONS
-```
-Win Condition: ALL must be true
-
-✅ All 3 species exist continuously
-✅ No species drops below 2 individuals
-✅ Ecosystem survives 10 game days (300 seconds)
-✅ Populations show healthy oscillation
-
-┌────────────────────────────────┐
-│  🏆 VICTORY ACHIEVED            │
-│                                 │
-│  Time survived: 10 days (5:00)  │
-│  Final populations:             │
-│  • Grass: 87 tiles              │
-│  • Rabbits: 23 animals          │
-│  • Foxes: 8 animals             │
-│                                 │
-│  Ecosystem is self-sustaining!  │
-└────────────────────────────────┘
-```
-
-### ❌ FAILURE CONDITIONS
-```
-Immediate Failure if ANY occur:
-
-❌ Grass population = 0
-   └─→ "All grass was consumed! The ecosystem collapsed."
-
-❌ Rabbit population = 0
-   └─→ "All rabbits died! Foxes will soon follow."
-
-❌ Fox population = 0
-   └─→ "All foxes died! The ecosystem is incomplete."
-
-❌ Any species < 2 individuals for extended period
-   └─→ "Population too low to sustain ecosystem."
-```
-
----
-
-## 12. USER INTERACTIONS
-
-### Setup Phase Interactions
-
-**Touch & Hold Placement:**
-```
-User Action Flow:
-
-1. Select organism tool (Grass/Rabbit/Fox)
-   │
-   ▼
-2. Touch screen on field area
-   │
-   ▼
-3. Hold finger down
-   │
-   ▼
-4. Organism spawns every 0.3 seconds
-   │
-   ├─ Visual feedback: Glow at spawn point
-   ├─ Audio feedback (optional): Soft "pop" sound
-   └─ Haptic feedback (optional): Light vibration
-   │
-   ▼
-5. Release finger to stop spawning
-   │
-   ▼
-6. Population counter updates in real-time
-
-Alternative: Mouse users
-├─ Click and hold = same behavior
-└─ Drag while holding = continuous placement
-```
-
-**Tool Selection:**
-```
-┌──────────────────────────────────┐
-│                                  │
-│  🌱 GRASS    🐰 RABBIT   🦊 FOX  │
-│  [ACTIVE]    [        ]  [     ] │
-│                                  │
-└──────────────────────────────────┘
-
-Interaction:
-• Tap/click to select
-• Active tool shows colored highlight
-• Active tool border glows
-• Only one tool active at a time
-```
-
-**Trial Mode Toggle:**
-```
-Trial Mode  [  ○──  ]  OFF
-
-Tap to enable ↓
-
-Trial Mode  [  ──●  ]  ON
-
-Effect:
-• Green safe zone appears (center 50%)
-• Red risk zones appear (4 corners)
-• Zones have dashed borders
-• Semi-transparent overlays (30% opacity)
-• Helps visualize optimal placement
-```
-
-### Playing Phase Interactions
-
-**Pause/Resume:**
-```
-State 1: Playing
-┌──────────────┐
-│  ⏸️ PAUSE   │
-└──────────────┘
-Tap ↓
-State 2: Paused
-┌──────────────┐
-│  ▶️ PLAY    │
-└──────────────┘
-
-When Paused:
-• All organism movement stops
-• Timers freeze
-• Can still adjust speed slider
-• Can still toggle overlays
-```
-
-**Speed Control:**
-```
-Speed Slider Interaction:
-
-  0.5x    1x     2x     4x
-   │      │      │      │
-   ├──────┼──────┼──────┤
-   │      ●      │      │
-   └──────────────────┘
-        Current: 1.0x
-
-Interaction:
-• Drag slider knob left/right
-• Tap position to jump to speed
-• Real-time updates (no lag)
-• Speed value displays above slider
-
-Effects by Speed:
-├─ 0.5x: Slow motion (easier to observe)
-├─ 1.0x: Normal speed (default)
-├─ 2.0x: Fast forward
-└─ 4.0x: Very fast (quick testing)
-```
-
-**Graph Toggle:**
-```
-Top Bar: [📊] button
-
-Tap to toggle
-    │
-    ▼
-Graph Overlay appears:
-
-┌─────────────────────────┐
-│  Population Over Time   │
-│  ┌───────────────────┐  │
-│  │    /\    /\       │  │
-│  │   /  \  /  \      │  │
-│  │  /    \/    \     │  │
-│  │ /              \  │  │
-│  └───────────────────┘  │
-│  🟢 Grass  🟠 Rabbit    │
-│  🔴 Fox                 │
-└─────────────────────────┘
-
-Features:
-• Semi-transparent background
-• Real-time updates every second
-• Shows last 60 seconds of data
-• Color-coded by species
-• Positioned at bottom of field
-```
-
-**Heat Map Toggle:**
-```
-Top Bar: [📍] button
-
-Tap to toggle
-    │
-    ▼
-Heat Map Overlay appears:
-
-Field with color overlay:
-┌─────────────────────────┐
-│  🟢🟢🟢🟡🟡🟡🔴🔴     │
-│  🟢🟢🟢🟡🟡🔴🔴🔴     │
-│  🟢🟢🟡🟡🟡🔴🔴🔴     │
-│  🟢🟡🟡🟡🔴🔴🔴🔴     │
-└─────────────────────────┘
-
-Color Meanings:
-🟢 Green: Healthy balance
-🟡 Yellow: Moderate activity
-🔴 Red: Critical stress/imbalance
-
-Updates: Every 2 seconds
-Opacity: 30% (semi-transparent)
-Blur: Heavy blur for smooth gradients
-```
-
----
-
-## 13. UI COMPONENT SPECIFICATIONS
-
-### Top Bar (60px height)
-```
-┌─────────────────────────────────────┐
-│  ⚙️         SETUP PHASE          ℹ️ │
-└─────────────────────────────────────┘
-
-Components:
-├─ Left: Settings button (⚙️)
-├─ Center: Phase title (dynamic text)
-└─ Right: Info (ℹ️) + Graph (📊) + Map (📍)
-
-Background: Linear gradient
-  └─ Top: #475569 (darker slate)
-  └─ Bottom: #334155 (medium slate)
-
-Text: White, 18px, semi-bold
-Icons: 24px, white, 80% opacity
-
-Field Background: #90ee90 (solid light green)
-  └─ Uniform across entire playing field
-  └─ No gradients or varied zones
-  └─ Grass can grow on any tile equally
-```
-
-### Stats Bar (60px height)
-```
-┌─────────────────────────────────────┐
-│  Grass    Rabbits    Foxes   Time   │
-│   [42]      [18]      [6]   [2:34]  │
-└─────────────────────────────────────┘
-
-Layout: 4 columns (or 3 in setup phase)
-Each column:
-  ├─ Label (11px, 70% opacity)
-  └─ Value (16px, bold, color-coded)
-
-Colors:
-├─ Grass: #22c55e (green)
-├─ Rabbits: #fb923c (orange)
-├─ Foxes: #ef4444 (red)
-└─ Time: #ffffff (white)
-
-Background: #1e293b (dark slate)
-```
-
-### Controls Panel (Variable height)
-```
-Setup Phase:
-┌─────────────────────────────────────┐
-│  Trial Mode  [Toggle OFF]           │
-│                                     │
-│  ┌──────┐  ┌──────┐  ┌──────┐      │
-│  │🌱 Grass│ │🐰 Rabbit│ │🦊 Fox│     │
-│  └──────┘  └──────┘  └──────┘      │
-│                                     │
-│  ┌──────────────┐  ┌──────────┐    │
-│  │START SIMULATION│ │  CLEAR   │    │
-│  └──────────────┘  └──────────┘    │
-└─────────────────────────────────────┘
-
-Playing Phase:
-┌─────────────────────────────────────┐
-│  ┌──────────┐  ┌──────────┐         │
-│  │⏸️ PAUSE │  │🔄 RESET  │         │
-│  └──────────┘  └──────────┘         │
-│                                     │
-│  Speed              [2.0x]          │
-│  ├────────●────────┤                │
-│  0.5x  1x  2x  4x                   │
-└─────────────────────────────────────┘
-
-Background: #334155 (medium slate)
-Padding: 16px all sides
-Gap: 12px between elements
-```
-
-### Button Specifications
-```
-Tool Buttons (Setup):
-├─ Size: Flexible width, 12px padding
-├─ Border: 2px solid
-├─ Background: #475569 (inactive)
-├─ Active state: Border color matches organism
-│  └─ Grass: #22c55e border
-│  └─ Rabbit: #fb923c border
-│  └─ Fox: #ef4444 border
-├─ Border radius: 8px
-└─ Font: 14px, medium weight
-
-Action Buttons:
-├─ Size: Flexible width, 14px padding
-├─ Border: None
-├─ Primary: #3b82f6 (blue)
-├─ Secondary: #64748b (slate)
-├─ Border radius: 8px
-├─ Font: 14px, semi-bold
-└─ Pressed: Scale 0.95 (feedback)
-
-Toggle Switch:
-├─ Width: 48px
-├─ Height: 28px
-├─ Border radius: 14px (pill shape)
-├─ Background (OFF): #64748b
-├─ Background (ON): #3b82f6
-├─ Knob: 22px circle, white
-│  └─ Position (OFF): 3px from left
-│  └─ Position (ON): 3px from right
-└─ Transition: 0.3s smooth
-```
-
----
-
-## 14. VISUAL FEEDBACK SYSTEM
-
-### Organism Health States
-```
-GRASS (No health states - always same appearance):
-🌱 Healthy: #22c55e, 100% opacity
-🌱 Same when eaten (just removed)
-
-RABBIT:
-🐰 Healthy (hunger < 6s):
-   ├─ Color: #fb923c (bright orange)
-   ├─ Opacity: 100%
-   ├─ Border: #ea580c (dark orange), 2px
-   └─ Visual: Solid, vibrant
-
-🐰 Hungry (hunger > 6s):
-   ├─ Color: #fed7aa (faded orange)
-   ├─ Opacity: 60%
-   ├─ Border: #fdba74 (light orange), 2px
-   └─ Visual: Faded, translucent
-
-🐰 Dying (hunger > 12s):
-   └─ Fade out animation (0.5s) → Remove
-
-FOX:
-🦊 Healthy (hunger < 10s):
-   ├─ Color: #ef4444 (bright red)
-   ├─ Opacity: 100%
-   ├─ Border: #dc2626 (dark red), 2px
-   └─ Visual: Solid, vibrant
-
-🦊 Hungry (hunger > 10s):
-   ├─ Color: #fca5a5 (faded pink)
-   ├─ Opacity: 60%
-   ├─ Border: #f87171 (light red), 2px
-   └─ Visual: Faded, translucent
-
-🦊 Dying (hunger > 25s):
-   └─ Fade out animation (0.5s) → Remove
-```
-
-### Movement Visualization
-```
-Movement Trails (Optional):
-Each moving organism leaves trail:
-
-🐰───→  (Rabbit trail)
-├─ Color: #fb923c at 30% opacity
-├─ Length: Last 2 seconds of movement
-├─ Width: 1px line
-└─ Fades out gradually
-
-🦊═══→  (Fox trail - thicker)
-├─ Color: #ef4444 at 30% opacity
-├─ Length: Last 2 seconds of movement
-├─ Width: 2px line
-└─ Fades out gradually
-
-Purpose:
-• Shows organism activity
-• Indicates movement patterns
-• Helps identify hunting behavior
-```
-
-### Grass Growth Animation
-```
-New Grass Spawn:
-
-Frame 1 (0s):   · (tiny dot, 0% scale)
-Frame 2 (0.1s): ∘ (small, 30% scale)
-Frame 3 (0.2s): ○ (medium, 70% scale)
-Frame 4 (0.3s): 🌱 (full size, 100% scale)
-
-Effects:
-├─ Scale up: 0% → 100% over 0.3 seconds
-├─ Opacity: Fade in 0% → 100%
-├─ Glow: Brief green glow (#22c55e)
-└─ Easing: Ease-out curve (smooth)
-```
-
-### Feeding/Hunting Animations
-```
-Rabbit Eating Grass:
-1. Rabbit moves onto grass tile
-2. Grass shrinks (0.2s animation)
-3. Grass disappears
-4. Rabbit returns to full opacity
-   └─ Visual: Becomes "healthy" color
-
-Fox Catching Rabbit:
-1. Fox moves onto rabbit tile
-2. Rabbit shrinks rapidly (0.1s)
-3. Rabbit disappears (poof effect)
-4. Fox returns to full opacity
-   └─ Visual: Becomes "healthy" color
-```
-
----
-
-## 15. PERFORMANCE OPTIMIZATION
-
-### Frame Rate Strategy
-```
-RENDERING LOOP:
-
-60 FPS (Visual Updates):
-├─ Update organism positions (interpolated)
-├─ Render sprites/graphics
-├─ Update UI counters
-└─ Smooth animations
-
-30 FPS (Logic Updates):
-├─ AI behavior calculations
-├─ Pathfinding
-├─ Collision detection
-├─ Hunger timer updates
-└─ Reproduction checks
-
-Variable Rate (Event-Based):
-├─ Grass growth: Every 2 seconds
-├─ Heat map: Every 2 seconds
-└─ Population graph: Every 1 second
-```
-
-### Optimization Techniques
-```
-1. OBJECT POOLING
-   ├─ Pre-allocate organisms
-   ├─ Reuse instead of create/destroy
-   └─ Reduces garbage collection
-
-2. SPATIAL HASHING
-   ├─ Divide 20×20 grid into 5×5 chunks
-   ├─ Only check nearby chunks for collision
-   └─ Reduces search complexity
-
-3. LEVEL OF DETAIL
-   ├─ Reduce AI updates when paused
-   ├─ Skip animations at 4x speed
-   └─ Simplify rendering at high speeds
-
-4. ENTITY LIMITS
-   ├─ Maximum 300-400 total organisms
-   ├─ Prevent performance degradation
-   └─ UI warning at 250+ organisms
-```
-
----
-
-## 16. TESTING CHECKLIST
-
-### Mechanic Verification
-```
-✅ Grass Mechanics:
-   ├─ [ ] Spreads 1 tile every 2 seconds
-   ├─ [ ] Stops at 70% coverage (280 tiles)
-   ├─ [ ] Regrows 15 seconds after eaten
-   ├─ [ ] Only spreads to empty ground layer
-   └─ [ ] Can coexist with animals (2-layer)
-
-✅ Rabbit Mechanics:
-   ├─ [ ] Moves 2 tiles/second
-   ├─ [ ] Detects grass within 3 tiles
-   ├─ [ ] Eats grass on same tile
-   ├─ [ ] Dies after 12s without food
-   ├─ [ ] Fades when hungry (>6s)
-   ├─ [ ] Reproduces every 10s when fed
-   ├─ [ ] Respects density limit (8 nearby)
-   └─ [ ] Avoids tiles with foxes
-
-✅ Fox Mechanics:
-   ├─ [ ] Moves 4 tiles/second
-   ├─ [ ] Detects rabbits within 5 tiles
-   ├─ [ ] Catches rabbit on same tile
-   ├─ [ ] Dies after 25s without food
-   ├─ [ ] Fades when hungry (>10s)
-   ├─ [ ] Reproduces every 30s when fed
-   ├─ [ ] Requires 3+ nearby rabbits
-   ├─ [ ] Respects density limit (4 nearby)
-   └─ [ ] Cannot share tile with another fox
-```
-
-### Balance Testing
-```
-✅ Stable Setups (should WIN):
-   ├─ [ ] 120 grass, 35 rabbits, 10 foxes
-   ├─ [ ] 140 grass, 45 rabbits, 15 foxes
-   ├─ [ ] Quadrant pattern (100/16/8)
-   └─ [ ] Central hub pattern
-
-✅ Unstable Setups (should LOSE):
-   ├─ [ ] 50 grass, 50 rabbits, 5 foxes → Grass depletion
-   ├─ [ ] 120 grass, 20 rabbits, 20 foxes → Rabbit extinction
-   ├─ [ ] 120 grass, 60 rabbits, 2 foxes → Grass depletion
-   ├─ [ ] Corner separation → Fox starvation
-   └─ [ ] 0 of any species → Immediate failure
-```
-
-### UI/UX Testing
-```
-✅ Setup Phase:
-   ├─ [ ] Touch & hold places continuously
-   ├─ [ ] Tool selection highlights correctly
-   ├─ [ ] Trial mode zones display properly
-   ├─ [ ] Population counters update live
-   ├─ [ ] Clear button removes all organisms
-   └─ [ ] Cannot start with 0 organisms
-
-✅ Playing Phase:
-   ├─ [ ] Pause stops all movement
-   ├─ [ ] Speed slider updates immediately
-   ├─ [ ] Graph displays correct data
-   ├─ [ ] Heat map shows health accurately
-   ├─ [ ] Time counter increments correctly
-   └─ [ ] Reset returns to setup cleanly
-
-✅ Win/Loss:
-   ├─ [ ] Victory modal at 10 days (300s)
-   ├─ [ ] Game over on grass extinction
-   ├─ [ ] Game over on rabbit extinction
-   ├─ [ ] Game over on fox extinction
-   ├─ [ ] Correct failure message displayed
-   └─ [ ] Play again resets properly
-```
-
-### Edge Cases
-```
-✅ Edge Case Testing:
-   ├─ [ ] Pause during reproduction → Resumes correctly
-   ├─ [ ] Speed change during chase → Maintains pursuit
-   ├─ [ ] All organisms in one tile → Proper layering
-   ├─ [ ] Rapid clicking → No duplicate spawns
-   ├─ [ ] Screen resize → Grid recalculates
-   ├─ [ ] 300+ organisms → Performance acceptable
-   └─ [ ] Long play (20+ minutes) → No memory leaks
-```
-
----
-
-## 17. EDUCATIONAL ASPECTS
-
-### Learning Objectives
-```
-Players learn about:
-
-🌍 ECOSYSTEM BALANCE
-├─ Predator-prey relationships
-├─ Resource management
-├─ Population dynamics
-└─ Carrying capacity
-
-🔬 FOOD CHAINS
-├─ Energy flow (sun → plant → herbivore → carnivore)
-├─ Trophic levels
-├─ Population ratios
-└─ Energy loss at each level
-
-📊 SYSTEM DYNAMICS
-├─ Feedback loops
-├─ Oscillating populations
-├─ Cause and effect
-└─ Long-term consequences
-
-🎯 SPATIAL STRATEGY
-├─ Importance of placement
-├─ Resource distribution
-├─ Territory and range
-└─ Migration patterns
-```
-
-### Real-World Connections
-```
-ANALOGIES TO NATURE:
-
-Yellowstone Wolf Reintroduction (1995):
-├─ Wolves removed → Elk overpopulation
-├─ Elk overgraze vegetation
-├─ Ecosystem degrades
-└─ Wolves reintroduced → Balance restored
-   (Similar to fox-rabbit-grass in game)
-
-Predator-Prey Cycles:
-├─ Lynx and Snowshoe Hare populations
-├─ 10-year cyclical pattern
-├─ Predator lags behind prey
-└─ Observable in game's oscillations
-
-Trophic Cascades:
-├─ Top predator affects entire chain
-├─ Removal causes cascade
-├─ Game demonstrates this clearly
-└─ Educational value for ecology students
-```
-
----
-
-## 18. FUTURE EXPANSION IDEAS
-
-### Version 2.0 Features
-```
-🌟 ADVANCED MECHANICS:
-├─ Decomposers (mushrooms)
-│  └─ Break down dead organisms
-├─ Weather events
-│  └─ Drought reduces grass growth
-├─ Seasons
-│  └─ Winter: slower reproduction
-├─ Disease mechanic
-│  └─ Can spread through populations
-└─ Mutations
-   └─ Organisms gain advantages
-
-🌍 NEW BIOMES:
-├─ Desert (cacti, lizards, snakes)
-├─ Ocean (plankton, fish, sharks)
-├─ Forest (trees, deer, wolves)
-└─ Arctic (lichen, caribou, polar bears)
-
-📊 ADVANCED UI:
-├─ Detailed statistics dashboard
-├─ Export data as CSV
-├─ Compare runs
-├─ Achievement system
-└─ Leaderboards
-
-🎮 GAME MODES:
-├─ Challenge mode (specific goals)
-├─ Sandbox mode (unlimited time)
-├─ Tutorial mode (guided learning)
-└─ Scenario mode (preset situations)
-```
-
----
-
-## 19. ACCESSIBILITY FEATURES
-
-### Visual Accessibility
-```
-COLOR BLINDNESS SUPPORT:
-├─ Use patterns in addition to colors
-│  └─ Grass: Dots pattern
-│  └─ Rabbits: Stripes pattern
-│  └─ Foxes: Solid pattern
-├─ High contrast mode option
-├─ Adjustable text size
-└─ Clear visual indicators (not just color)
-
-SCREEN READER SUPPORT:
-├─ Announce population changes
-├─ Describe game state
-├─ Read out win/loss conditions
-└─ Navigation hints
-```
-
-### Interaction Accessibility
-```
-ALTERNATIVE CONTROLS:
-├─ Tap to place (not just hold)
-├─ Keyboard shortcuts (for desktop)
-│  └─ 1: Select grass
-│  └─ 2: Select rabbit
-│  └─ 3: Select fox
-│  └─ Space: Pause/play
-├─ Voice commands (future)
-└─ Switch control support
-
-ADJUSTABLE DIFFICULTY:
-├─ Easy mode (more forgiving timers)
-├─ Normal mode (as specified)
-├─ Hard mode (stricter requirements)
-└─ Custom mode (adjust all parameters)
-```
-
----
-
-## 20. SUMMARY & KEY TAKEAWAYS
-
-### Core Design Principles
-```
-1. STRATEGIC SETUP
-   └─ Success determined by initial placement
-   
-2. OBSERVATION FOCUS
-   └─ No mid-game intervention forces planning
-   
-3. NATURAL BALANCE
-   └─ Realistic ecosystem dynamics
-   
-4. SPATIAL AWARENESS
-   └─ Distance and positioning critical
-   
-5. VISUAL CLARITY
-   └─ Clear feedback on ecosystem health
-```
-
-### Success Metrics
-```
-PLAYER UNDERSTANDING:
-✅ Players grasp ecosystem balance concept
-✅ Setup phase feels strategic (not random)
-✅ Simulation phase is engaging to watch
-✅ Failure teaches lessons for next attempt
-✅ Victory feels earned and rewarding
-
-TECHNICAL GOALS:
-✅ 60 FPS visual rendering
-✅ 30 FPS AI updates
-✅ Handles 300-400 organisms smoothly
-✅ No performance degradation over time
-✅ Works on mid-range mobile devices
-```
-
-### Quick Reference: Winning Strategy
-```
-BEGINNER'S GUIDE TO VICTORY:
-
-1. GRASS PLACEMENT (First):
-   └─ Place 120-140 grass tiles
-   └─ Create 4-6 clusters
-   └─ Spread across field (not one area)
-
-2. RABBIT PLACEMENT (Second):
-   └─ Place 35-45 rabbits
-   └─ Within 3-5 tiles of grass clusters
-   └─ Distribute 2-4 per cluster
-
-3. FOX PLACEMENT (Last):
-   └─ Place 10-15 foxes
-   └─ Central or between rabbit groups
-   └─ Keep within 7-10 tiles of rabbits
-
-4. AVOID:
-   ❌ Corner placement (isolation)
-   ❌ All in one spot (rapid depletion)
-   ❌ Too many predators
-   ❌ Too few predators
-
-5. WATCH FOR:
-   ✅ Oscillating populations (healthy)
-   ✅ All species staying above 2
-   ✅ Grass regrowing consistently
-   ✅ Foxes finding prey regularly
-```
-
----
-
-## DOCUMENT END
-
-**Version:** 1.0  
-**Grid Size:** 20×20 (400 tiles, 2-layer system)  
-**Last Updated:** October 2025  
-**Document Type:** Wireframes, Gameplay, Rules & Mechanisms
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecosystem Simulation Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1e293b;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: linear-gradient(to bottom, #475569, #334155);
+        }
+        
+        .top-bar h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .icon-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        
+        .game-field {
+            flex: 1;
+            position: relative;
+            background: #90ee90;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            display: block;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 16px;
+            background: #0f172a;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .controls-panel {
+            padding: 16px;
+            background: #475569;
+        }
+        
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .toggle-switch {
+            width: 48px;
+            height: 28px;
+            background: #64748b;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #3b82f6;
+        }
+        
+        .toggle-knob {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(20px);
+        }
+        
+        .tool-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .tool-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #64748b;
+            background: #334155;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .tool-btn.active-grass {
+            border-color: #22c55e;
+        }
+        
+        .tool-btn.active-rabbit {
+            border-color: #fb923c;
+        }
+        
+        .tool-btn.active-fox {
+            border-color: #ef4444;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        
+        .speed-control {
+            margin-top: 12px;
+        }
+        
+        .speed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .speed-slider {
+            width: 100%;
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .speed-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .speed-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: #334155;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .modal-text {
+            color: #cbd5e1;
+            margin-bottom: 24px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <span class="icon">⚙️</span>
+        <h1 id="phase-title">SETUP PHASE</h1>
+        <div class="icon-group">
+            <span class="icon">ℹ️</span>
+            <span class="icon hidden" id="graph-icon">📊</span>
+            <span class="icon hidden" id="map-icon">📍</span>
+        </div>
+    </div>
+
+    <div class="game-field">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat">
+            <div class="stat-label">Grass</div>
+            <div class="stat-value" style="color: #22c55e;" id="grass-count">[0]</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Rabbits</div>
+            <div class="stat-value" style="color: #fb923c;" id="rabbit-count">[0]</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Foxes</div>
+            <div class="stat-value" style="color: #ef4444;" id="fox-count">[0]</div>
+        </div>
+        <div class="stat hidden" id="time-stat">
+            <div class="stat-label">Time</div>
+            <div class="stat-value" id="time-value">[0:00]</div>
+        </div>
+    </div>
+
+    <div class="controls-panel">
+        <div id="setup-controls">
+            <div class="toggle-row">
+                <span>Trial Mode</span>
+                <div class="toggle-switch" id="trial-toggle">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+            
+            <div class="tool-buttons">
+                <button class="tool-btn active-grass" data-tool="grass">🌱 Grass</button>
+                <button class="tool-btn" data-tool="rabbit">🐰 Rabbit</button>
+                <button class="tool-btn" data-tool="fox">🦊 Fox</button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="start-btn">START SIMULATION</button>
+                <button class="btn btn-secondary" id="clear-btn">CLEAR</button>
+            </div>
+        </div>
+
+        <div id="playing-controls" class="hidden">
+            <div class="action-buttons" style="margin-bottom: 12px;">
+                <button class="btn btn-secondary" id="pause-btn">⏸️ PAUSE</button>
+                <button class="btn btn-secondary" id="reset-btn">🔄 RESET</button>
+            </div>
+            
+            <div class="speed-control">
+                <div class="speed-header">
+                    <span>Speed</span>
+                    <span id="speed-value">1.0x</span>
+                </div>
+                <input type="range" class="speed-slider" id="speed-slider" min="0.5" max="4" step="0.5" value="1">
+                <div class="speed-labels">
+                    <span>0.5x</span>
+                    <span>1x</span>
+                    <span>2x</span>
+                    <span>4x</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-icon" id="modal-icon">🏆</div>
+            <h2 class="modal-title" id="modal-title">Victory!</h2>
+            <p class="modal-text" id="modal-text">Your ecosystem survived for 10 days!</p>
+            <button class="btn btn-primary" id="modal-btn" style="width: 100%;">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const GRID_SIZE = 20;
+        const TILE_COUNT = GRID_SIZE * GRID_SIZE;
+        const GAME_DAY_SECONDS = 30;
+        const WIN_DAYS = 10;
+        const FRAME_RATE = 60;
+
+        const GRASS_GROWTH_INTERVAL = 2;
+        const GRASS_MAX_COVERAGE = 0.7;
+        const GRASS_REGROW_TIME = 15;
+
+        const RABBIT_SPEED = 2;
+        const RABBIT_DETECTION = 3;
+        const RABBIT_HUNGER_WARNING = 6;
+        const RABBIT_HUNGER_MAX = 12;
+        const RABBIT_REPRODUCE_COOLDOWN = 10;
+        const RABBIT_DENSITY_LIMIT = 8;
+        const RABBIT_DENSITY_RADIUS = 5;
+
+        const FOX_SPEED = 4;
+        const FOX_DETECTION = 5;
+        const FOX_HUNGER_WARNING = 10;
+        const FOX_HUNGER_MAX = 25;
+        const FOX_REPRODUCE_COOLDOWN = 30;
+        const FOX_DENSITY_LIMIT = 4;
+        const FOX_DENSITY_RADIUS = 5;
+        const FOX_REPRODUCE_RABBIT_REQUIREMENT = 3;
+        const FOX_REPRODUCE_RABBIT_RADIUS = 8;
+
+        let gamePhase = 'setup';
+        let selectedTool = 'grass';
+        let trialMode = false;
+        let speed = 1;
+        let gameTime = 0;
+        let grid = [];
+        let animals = [];
+        let nextId = 1;
+        let animationFrameId = null;
+        let lastUpdate = 0;
+        let logicFrame = 0;
+        let grassGrowthTimer = 0;
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function initializeGrid() {
+            grid = Array(TILE_COUNT).fill(null).map(() => ({
+                grass: false,
+                grassGrowTime: 0
+            }));
+            animals = [];
+            gameTime = 0;
+            nextId = 1;
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.width;
+        }
+
+        function getTileIndex(x, y) {
+            if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return -1;
+            return Math.floor(y) * GRID_SIZE + Math.floor(x);
+        }
+
+        function getDistance(x1, y1, x2, y2) {
+            return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+
+        function findNearestTarget(animal, targets, range) {
+            let nearest = null;
+            let minDist = range;
+            
+            targets.forEach(target => {
+                const dist = getDistance(animal.x, animal.y, target.x, target.y);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = target;
+                }
+            });
+            
+            return nearest;
+        }
+
+        function moveToward(animal, targetX, targetY, speedPerFrame) {
+            const dx = targetX - animal.x;
+            const dy = targetY - animal.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < speedPerFrame) {
+                animal.x = targetX;
+                animal.y = targetY;
+            } else {
+                animal.x += (dx / dist) * speedPerFrame;
+                animal.y += (dy / dist) * speedPerFrame;
+            }
+            
+            animal.x = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.x));
+            animal.y = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.y));
+        }
+
+        function countNearbyAnimals(x, y, type, radius) {
+            return animals.filter(a => 
+                a.type === type && getDistance(x, y, a.x, a.y) <= radius
+            ).length;
+        }
+
+        function getAdjacentEmptyTile(x, y) {
+            const adjacent = [
+                {x: x + 1, y: y}, {x: x - 1, y: y}, {x: x, y: y + 1}, {x: x, y: y - 1},
+                {x: x + 1, y: y + 1}, {x: x - 1, y: y - 1}, {x: x + 1, y: y - 1}, {x: x - 1, y: y + 1}
+            ];
+            
+            for (let pos of adjacent) {
+                if (pos.x >= 0 && pos.x < GRID_SIZE && pos.y >= 0 && pos.y < GRID_SIZE) {
+                    const occupied = animals.some(a => 
+                        Math.floor(a.x) === Math.floor(pos.x) && Math.floor(a.y) === Math.floor(pos.y)
+                    );
+                    if (!occupied) return pos;
+                }
+            }
+            return null;
+        }
+
+        function updateLogic(deltaTime) {
+            if (gamePhase !== 'playing') return;
+
+            const speedPerFrame = deltaTime * speed;
+            
+            animals.forEach(animal => {
+                animal.hunger += deltaTime * speed;
+                animal.reproduceCooldown = Math.max(0, animal.reproduceCooldown - deltaTime * speed);
+                
+                if (animal.type === 'rabbit') {
+                    const currentTileIdx = getTileIndex(animal.x, animal.y);
+                    
+                    if (currentTileIdx >= 0 && grid[currentTileIdx].grass) {
+                        grid[currentTileIdx].grass = false;
+                        grid[currentTileIdx].grassGrowTime = GRASS_REGROW_TIME;
+                        animal.hunger = 0;
+                    } else if (animal.hunger > RABBIT_HUNGER_WARNING) {
+                        const nearbyGrass = [];
+                        for (let dy = -RABBIT_DETECTION; dy <= RABBIT_DETECTION; dy++) {
+                            for (let dx = -RABBIT_DETECTION; dx <= RABBIT_DETECTION; dx++) {
+                                const checkX = Math.floor(animal.x) + dx;
+                                const checkY = Math.floor(animal.y) + dy;
+                                const idx = getTileIndex(checkX, checkY);
+                                if (idx >= 0 && grid[idx].grass) {
+                                    nearbyGrass.push({ x: checkX + 0.5, y: checkY + 0.5 });
+                                }
+                            }
+                        }
+                        
+                        if (nearbyGrass.length > 0) {
+                            const nearest = findNearestTarget(animal, nearbyGrass, RABBIT_DETECTION);
+                            if (nearest) {
+                                moveToward(animal, nearest.x, nearest.y, RABBIT_SPEED * speedPerFrame / FRAME_RATE);
+                            }
+                        } else {
+                            animal.x += (Math.random() - 0.5) * RABBIT_SPEED * speedPerFrame / FRAME_RATE;
+                            animal.y += (Math.random() - 0.5) * RABBIT_SPEED * speedPerFrame / FRAME_RATE;
+                            animal.x = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.x));
+                            animal.y = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.y));
+                        }
+                    } else {
+                        animal.x += (Math.random() - 0.5) * RABBIT_SPEED * speedPerFrame / FRAME_RATE;
+                        animal.y += (Math.random() - 0.5) * RABBIT_SPEED * speedPerFrame / FRAME_RATE;
+                        animal.x = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.x));
+                        animal.y = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.y));
+                    }
+                    
+                    if (animal.reproduceCooldown <= 0 && animal.hunger < RABBIT_HUNGER_WARNING) {
+                        const nearby = countNearbyAnimals(animal.x, animal.y, 'rabbit', RABBIT_DENSITY_RADIUS);
+                        if (nearby < RABBIT_DENSITY_LIMIT) {
+                            const emptyTile = getAdjacentEmptyTile(animal.x, animal.y);
+                            if (emptyTile) {
+                                animals.push({
+                                    id: nextId++,
+                                    type: 'rabbit',
+                                    x: emptyTile.x,
+                                    y: emptyTile.y,
+                                    hunger: 0,
+                                    reproduceCooldown: RABBIT_REPRODUCE_COOLDOWN
+                                });
+                                animal.reproduceCooldown = RABBIT_REPRODUCE_COOLDOWN;
+                            }
+                        }
+                    }
+                } else if (animal.type === 'fox') {
+                    const rabbitsOnTile = animals.filter(a => 
+                        a.type === 'rabbit' && 
+                        Math.floor(a.x) === Math.floor(animal.x) && 
+                        Math.floor(a.y) === Math.floor(animal.y)
+                    );
+                    
+                    if (rabbitsOnTile.length > 0) {
+                        animals = animals.filter(a => a.id !== rabbitsOnTile[0].id);
+                        animal.hunger = 0;
+                    } else if (animal.hunger > FOX_HUNGER_WARNING) {
+                        const nearbyRabbits = animals.filter(a => 
+                            a.type === 'rabbit' && getDistance(animal.x, animal.y, a.x, a.y) <= FOX_DETECTION
+                        );
+                        
+                        if (nearbyRabbits.length > 0) {
+                            const nearest = findNearestTarget(animal, nearbyRabbits, FOX_DETECTION);
+                            if (nearest) {
+                                moveToward(animal, nearest.x, nearest.y, FOX_SPEED * speedPerFrame / FRAME_RATE);
+                            }
+                        } else {
+                            animal.x += (Math.random() - 0.5) * FOX_SPEED * speedPerFrame / FRAME_RATE * 0.5;
+                            animal.y += (Math.random() - 0.5) * FOX_SPEED * speedPerFrame / FRAME_RATE * 0.5;
+                            animal.x = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.x));
+                            animal.y = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.y));
+                        }
+                    } else {
+                        animal.x += (Math.random() - 0.5) * FOX_SPEED * speedPerFrame / FRAME_RATE * 0.5;
+                        animal.y += (Math.random() - 0.5) * FOX_SPEED * speedPerFrame / FRAME_RATE * 0.5;
+                        animal.x = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.x));
+                        animal.y = Math.max(0, Math.min(GRID_SIZE - 0.01, animal.y));
+                    }
+                    
+                    if (animal.reproduceCooldown <= 0 && animal.hunger < FOX_HUNGER_WARNING) {
+                        const nearbyRabbits = countNearbyAnimals(animal.x, animal.y, 'rabbit', FOX_REPRODUCE_RABBIT_RADIUS);
+                        const nearbyFoxes = countNearbyAnimals(animal.x, animal.y, 'fox', FOX_DENSITY_RADIUS);
+                        
+                        if (nearbyRabbits >= FOX_REPRODUCE_RABBIT_REQUIREMENT && nearbyFoxes < FOX_DENSITY_LIMIT) {
+                            const emptyTile = getAdjacentEmptyTile(animal.x, animal.y);
+                            if (emptyTile) {
+                                animals.push({
+                                    id: nextId++,
+                                    type: 'fox',
+                                    x: emptyTile.x,
+                                    y: emptyTile.y,
+                                    hunger: 0,
+                                    reproduceCooldown: FOX_REPRODUCE_COOLDOWN
+                                });
+                                animal.reproduceCooldown = FOX_REPRODUCE_COOLDOWN;
+                            }
+                        }
+                    }
+                }
+            });
+            
+            animals = animals.filter(animal => {
+                if (animal.type === 'rabbit') return animal.hunger < RABBIT_HUNGER_MAX;
+                if (animal.type === 'fox') return animal.hunger < FOX_HUNGER_MAX;
+                return true;
+            });
+
+            grassGrowthTimer += deltaTime * speed;
+            if (grassGrowthTimer >= GRASS_GROWTH_INTERVAL) {
+                grassGrowthTimer = 0;
+                
+                const currentGrass = grid.filter(t => t.grass).length;
+                const maxGrass = Math.floor(TILE_COUNT * GRASS_MAX_COVERAGE);
+                
+                grid.forEach(tile => {
+                    if (tile.grassGrowTime > 0) {
+                        tile.grassGrowTime = Math.max(0, tile.grassGrowTime - GRASS_GROWTH_INTERVAL * speed);
+                        if (tile.grassGrowTime === 0) {
+                            tile.grass = true;
+                        }
+                    }
+                });
+                
+                if (currentGrass < maxGrass) {
+                    const grassTiles = grid.map((t, i) => t.grass ? i : -1).filter(i => i >= 0);
+                    
+                    grassTiles.forEach(idx => {
+                        if (Math.random() < 0.3 && currentGrass < maxGrass) {
+                            const x = idx % GRID_SIZE;
+                            const y = Math.floor(idx / GRID_SIZE);
+                            const adjacent = [
+                                getTileIndex(x + 1, y), getTileIndex(x - 1, y),
+                                getTileIndex(x, y + 1), getTileIndex(x, y - 1)
+                            ].filter(i => i >= 0 && !grid[i].grass && grid[i].grassGrowTime === 0);
+                            
+                            if (adjacent.length > 0) {
+                                const targetIdx = adjacent[Math.floor(Math.random() * adjacent.length)];
+                                grid[targetIdx].grass = true;
+                            }
+                        }
+                    });
+                }
+            }
+
+            gameTime += deltaTime * speed;
+            
+            if (gameTime >= WIN_DAYS * GAME_DAY_SECONDS) {
+                gamePhase = 'ended';
+                showModal('victory', 'Victory!', 'Your ecosystem survived for 10 days!');
+                return;
+            }
+
+            checkGameOver();
+        }
+
+        function checkGameOver() {
+            const grassCount = grid.filter(t => t.grass).length;
+            const rabbitCount = animals.filter(a => a.type === 'rabbit').length;
+            const foxCount = animals.filter(a => a.type === 'fox').length;
+            
+            if (grassCount === 0) {
+                gamePhase = 'ended';
+                showModal('gameover', 'Ecosystem Collapsed', 'All grass was consumed! The ecosystem collapsed.');
+            } else if (rabbitCount === 0) {
+                gamePhase = 'ended';
+                showModal('gameover', 'Ecosystem Collapsed', 'All rabbits died! Foxes will soon follow.');
+            } else if (foxCount === 0) {
+                gamePhase = 'ended';
+                showModal('gameover', 'Ecosystem Collapsed', 'All foxes died! The ecosystem is incomplete.');
+            }
+        }
+
+        function render() {
+            const tileSize = canvas.width / GRID_SIZE;
+            
+            ctx.fillStyle = '#90ee90';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (gamePhase === 'setup' && trialMode) {
+                ctx.strokeStyle = '#22c55e';
+                ctx.setLineDash([5, 5]);
+                ctx.lineWidth = 2;
+                const safeX = GRID_SIZE * 0.25 * tileSize;
+                const safeY = GRID_SIZE * 0.25 * tileSize;
+                const safeW = GRID_SIZE * 0.5 * tileSize;
+                const safeH = GRID_SIZE * 0.5 * tileSize;
+                ctx.strokeRect(safeX, safeY, safeW, safeH);
+                
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+                ctx.fillRect(0, 0, safeX, safeY);
+                ctx.fillRect(safeX + safeW, 0, canvas.width - (safeX + safeW), safeY);
+                ctx.fillRect(0, safeY + safeH, safeX, canvas.height - (safeY + safeH));
+                ctx.fillRect(safeX + safeW, safeY + safeH, canvas.width - (safeX + safeW), canvas.height - (safeY + safeH));
+                
+                ctx.setLineDash([]);
+            }
+            
+            grid.forEach((tile, idx) => {
+                if (tile.grass) {
+                    const x = (idx % GRID_SIZE) * tileSize + tileSize / 2;
+                    const y = Math.floor(idx / GRID_SIZE) * tileSize + tileSize / 2;
+                    ctx.fillStyle = '#22c55e';
+                    ctx.beginPath();
+                    ctx.arc(x, y, tileSize * 0.1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            
+            animals.forEach(animal => {
+                const x = animal.x * tileSize;
+                const y = animal.y * tileSize;
+                const size = animal.type === 'rabbit' ? tileSize * 0.25 : tileSize * 0.5;
+                
+                let color, borderColor, opacity;
+                if (animal.type === 'rabbit') {
+                    const hungry = animal.hunger > RABBIT_HUNGER_WARNING;
+                    color = hungry ? '#fed7aa' : '#fb923c';
+                    borderColor = hungry ? '#fdba74' : '#ea580c';
+                    opacity = hungry ? 0.6 : 1;
+                } else {
+                    const hungry = animal.hunger > FOX_HUNGER_WARNING;
+                    color = hungry ? '#fca5a5' : '#ef4444';
+                    borderColor = hungry ? '#f87171' : '#dc2626';
+                    opacity = hungry ? 0.6 : 1;
+                }
+                
+                ctx.globalAlpha = opacity;
+                ctx.fillStyle = color;
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            });
+        }
+
+        function updateStats() {
+            const grassCount = grid.filter(t => t.grass).length;
+            const rabbitCount = animals.filter(a => a.type === 'rabbit').length;
+            const foxCount = animals.filter(a => a.type === 'fox').length;
+            
+            document.getElementById('grass-count').textContent = `[${grassCount}]`;
+            document.getElementById('rabbit-count').textContent = `[${rabbitCount}]`;
+            document.getElementById('fox-count').textContent = `[${foxCount}]`;
+            
+            if (gamePhase === 'playing') {
+                const mins = Math.floor(gameTime / 60);
+                const secs = Math.floor(gameTime % 60);
+                document.getElementById('time-value').textContent = `[${mins}:${secs.toString().padStart(2, '0')}]`;
+            }
+        }
+
+        function gameLoop(timestamp) {
+            const deltaTime = (timestamp - lastUpdate) / 1000;
+            lastUpdate = timestamp;
+            
+            logicFrame++;
+            if (logicFrame % 2 === 0) {
+                updateLogic(deltaTime);
+            }
+            
+            render();
+            updateStats();
+            
+            if (gamePhase === 'playing') {
+                animationFrameId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function startSimulation() {
+            const grassCount = grid.filter(t => t.grass).length;
+            const rabbitCount = animals.filter(a => a.type === 'rabbit').length;
+            const foxCount = animals.filter(a => a.type === 'fox').length;
+            
+            if (grassCount === 0 || rabbitCount === 0 || foxCount === 0) {
+                alert('You need at least 1 of each organism to start!');
+                return;
+            }
+            
+            gamePhase = 'playing';
+            document.getElementById('setup-controls').classList.add('hidden');
+            document.getElementById('playing-controls').classList.remove('hidden');
+            document.getElementById('time-stat').classList.remove('hidden');
+            document.getElementById('graph-icon').classList.remove('hidden');
+            document.getElementById('map-icon').classList.remove('hidden');
+            document.getElementById('phase-title').textContent = 'ECOSYSTEM';
+            
+            lastUpdate = performance.now();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function pauseSimulation() {
+            if (gamePhase === 'playing') {
+                gamePhase = 'paused';
+                document.getElementById('pause-btn').innerHTML = '▶️ PLAY';
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+            } else if (gamePhase === 'paused') {
+                gamePhase = 'playing';
+                document.getElementById('pause-btn').innerHTML = '⏸️ PAUSE';
+                lastUpdate = performance.now();
+                animationFrameId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function resetGame() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            initializeGrid();
+            gamePhase = 'setup';
+            document.getElementById('setup-controls').classList.remove('hidden');
+            document.getElementById('playing-controls').classList.add('hidden');
+            document.getElementById('time-stat').classList.add('hidden');
+            document.getElementById('graph-icon').classList.add('hidden');
+            document.getElementById('map-icon').classList.add('hidden');
+            document.getElementById('phase-title').textContent = 'SETUP PHASE';
+            document.getElementById('pause-btn').innerHTML = '⏸️ PAUSE';
+            render();
+            updateStats();
+        }
+
+        function showModal(type, title, text) {
+            const modal = document.getElementById('modal');
+            const icon = document.getElementById('modal-icon');
+            const titleEl = document.getElementById('modal-title');
+            const textEl = document.getElementById('modal-text');
+            const btn = document.getElementById('modal-btn');
+            
+            icon.textContent = type === 'victory' ? '🏆' : '💀';
+            titleEl.textContent = title;
+            textEl.textContent = text;
+            btn.textContent = type === 'victory' ? 'PLAY AGAIN' : 'TRY AGAIN';
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('modal').classList.add('hidden');
+            resetGame();
+        }
+
+        function placeOrganism(x, y) {
+            if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
+            
+            if (selectedTool === 'grass') {
+                const idx = getTileIndex(x, y);
+                grid[idx] = { grass: true, grassGrowTime: 0 };
+            } else {
+                const occupied = animals.some(a => Math.floor(a.x) === x && Math.floor(a.y) === y);
+                if (!occupied) {
+                    animals.push({
+                        id: nextId++,
+                        type: selectedTool,
+                        x: x + 0.5,
+                        y: y + 0.5,
+                        hunger: 0,
+                        reproduceCooldown: selectedTool === 'rabbit' ? RABBIT_REPRODUCE_COOLDOWN : FOX_REPRODUCE_COOLDOWN
+                    });
+                }
+            }
+            render();
+            updateStats();
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (gamePhase !== 'setup') return;
+            const rect = canvas.getBoundingClientRect();
+            const tileSize = rect.width / GRID_SIZE;
+            const x = Math.floor((e.clientX - rect.left) / tileSize);
+            const y = Math.floor((e.clientY - rect.top) / tileSize);
+            placeOrganism(x, y);
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (gamePhase !== 'setup') return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const tileSize = rect.width / GRID_SIZE;
+            const touch = e.touches[0];
+            const x = Math.floor((touch.clientX - rect.left) / tileSize);
+            const y = Math.floor((touch.clientY - rect.top) / tileSize);
+            placeOrganism(x, y);
+        });
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => {
+                    b.classList.remove('active-grass', 'active-rabbit', 'active-fox');
+                });
+                selectedTool = btn.dataset.tool;
+                btn.classList.add(`active-${selectedTool}`);
+            });
+        });
+
+        document.getElementById('trial-toggle').addEventListener('click', () => {
+            trialMode = !trialMode;
+            document.getElementById('trial-toggle').classList.toggle('active');
+            render();
+        });
+
+        document.getElementById('start-btn').addEventListener('click', startSimulation);
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            initializeGrid();
+            render();
+            updateStats();
+        });
+        document.getElementById('pause-btn').addEventListener('click', pauseSimulation);
+        document.getElementById('reset-btn').addEventListener('click', resetGame);
+        document.getElementById('modal-btn').addEventListener('click', hideModal);
+
+        document.getElementById('speed-slider').addEventListener('input', (e) => {
+            speed = parseFloat(e.target.value);
+            document.getElementById('speed-value').textContent = `${speed}x`;
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            render();
+        });
+
+        initializeGrid();
+        resizeCanvas();
+        render();
+        updateStats();
+    </script>
+</body>
+</html>

@@ -2,1012 +2,1052 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecosystem Simulation Game</title>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>Ecosystem Simulation</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        #root {
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #1e293b;
+            color: white;
+            overflow: hidden;
+            touch-action: none;
             width: 100vw;
             height: 100vh;
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* Top Bar */
+        #top-bar {
+            background: linear-gradient(to bottom, #475569, #334155);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        #top-bar h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .icon-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.8;
+        }
+        
+        .icon-btn:hover {
+            opacity: 1;
+        }
+        
+        /* Field */
+        #field-container {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(to bottom, #87ceeb 0%, #90ee90 50%, #8b7355 100%);
+            overflow: hidden;
+        }
+        
+        #field {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .trial-zone {
+            position: absolute;
+            border: 2px dashed;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .trial-zone.visible {
+            opacity: 0.3;
+        }
+        
+        .safe-zone {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+        }
+        
+        .risk-zone {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+        }
+        
+        .organism {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s;
+            font-size: 8px;
+        }
+        
+        .grass {
+            background: #22c55e;
+            border: 1px solid #16a34a;
+        }
+        
+        .rabbit {
+            background: #fb923c;
+            border: 2px solid #ea580c;
+        }
+        
+        .rabbit.hungry {
+            background: #fed7aa;
+            border-color: #fdba74;
+            opacity: 0.6;
+        }
+        
+        .fox {
+            background: #ef4444;
+            border: 2px solid #dc2626;
+        }
+        
+        .fox.hungry {
+            background: #fca5a5;
+            border-color: #f87171;
+            opacity: 0.6;
+        }
+        
+        /* Stats Bar */
+        #stats-bar {
+            background: #1e293b;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-around;
+            height: 60px;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        /* Controls Panel */
+        #controls-panel {
+            background: #334155;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .tool-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #475569;
+            background: #475569;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .tool-btn.active {
+            border-color: currentColor;
+            box-shadow: 0 0 0 2px currentColor;
+        }
+        
+        .tool-btn.grass-btn { color: #22c55e; }
+        .tool-btn.rabbit-btn { color: #fb923c; }
+        .tool-btn.fox-btn { color: #ef4444; }
+        
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .primary-btn {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .secondary-btn {
+            background: #64748b;
+            color: white;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 28px;
+            background: #64748b;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #3b82f6;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: left 0.3s;
+        }
+        
+        .toggle-switch.active::after {
+            left: 23px;
+        }
+        
+        .speed-control {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .speed-slider {
+            width: 100%;
+            height: 4px;
+            background: #64748b;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .speed-markers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.visible {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #334155;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 320px;
+            text-align: center;
+        }
+        
+        .modal-content h2 {
+            margin-bottom: 12px;
+            font-size: 24px;
+        }
+        
+        .modal-content p {
+            margin-bottom: 20px;
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+    <div id="game-container">
+        <!-- Top Bar -->
+        <div id="top-bar">
+            <button class="icon-btn" onclick="showInfo()">ℹ️</button>
+            <h1 id="phase-title">Setup Phase</h1>
+            <div style="display: flex; gap: 8px;">
+                <button class="icon-btn" id="graph-btn" style="display: none;" onclick="toggleGraphs()">📊</button>
+            </div>
+        </div>
         
-        const GRID_SIZE = 20;
-        const TILE_SIZE = 18;
-        const GAME_DAY_DURATION = 30;
-        const WIN_DAYS = 10;
-
-        const SPECIES = {
-            GRASS: 'grass',
-            RABBIT: 'rabbit',
-            FOX: 'fox'
-        };
-
-        const TIMERS = {
-            grass: { spread: 5, regrow: 15 },
-            rabbit: { hunger: 12, reproduction: 40, detectionRange: 3, speed: 2 },
-            fox: { hunger: 25, reproduction: 90, detectionRange: 5, speed: 4 }
-        };
-
-        // Lucide icons as SVG components
-        const Pause = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="6" y="4" width="4" height="16"></rect>
-                <rect x="14" y="4" width="4" height="16"></rect>
-            </svg>
-        );
-
-        const Play = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-        );
-
-        const RotateCcw = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="1 4 1 10 7 10"></polyline>
-                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-            </svg>
-        );
-
-        const Info = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-        );
-
-        const BarChart3 = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 3v18h18"></path>
-                <path d="M18 17V9"></path>
-                <path d="M13 17V5"></path>
-                <path d="M8 17v-3"></path>
-            </svg>
-        );
-
-        const MapPin = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-        );
-
-        const X = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        );
-
-        const EcosystemGame = () => {
-            const [phase, setPhase] = useState('setup');
-            const [selectedTool, setSelectedTool] = useState(SPECIES.GRASS);
-            const [organisms, setOrganisms] = useState([]);
-            const [gameTime, setGameTime] = useState(0);
-            const [speed, setSpeed] = useState(1);
-            const [isPaused, setIsPaused] = useState(false);
-            const [gameStatus, setGameStatus] = useState(null);
-            const [isPlacing, setIsPlacing] = useState(false);
-            
-            const [trialMode, setTrialMode] = useState(false);
-            const [showGraphs, setShowGraphs] = useState(false);
-            const [showHeatMap, setShowHeatMap] = useState(false);
-            const [showTutorial, setShowTutorial] = useState(false);
-            const [populationHistory, setPopulationHistory] = useState([]);
-            const [deathCause, setDeathCause] = useState('');
-            
-            const canvasRef = useRef(null);
-            const animationRef = useRef(null);
-            const lastUpdateRef = useRef(Date.now());
-            const gameTimeRef = useRef(0);
-            const organismsRef = useRef([]);
-
-            useEffect(() => {
-                organismsRef.current = organisms;
-            }, [organisms]);
-
-            const getCounts = () => {
-                const counts = { grass: 0, rabbit: 0, fox: 0 };
-                organisms.forEach(org => {
-                    if (org.alive) counts[org.type]++;
-                });
-                return counts;
-            };
-
-            const counts = getCounts();
-
-            const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
-
-            const gridToCanvas = (x, y) => ({
-                x: x * TILE_SIZE + TILE_SIZE / 2,
-                y: y * TILE_SIZE + TILE_SIZE / 2
-            });
-
-            const canvasToGrid = (x, y) => ({
-                x: Math.floor(x / TILE_SIZE),
-                y: Math.floor(y / TILE_SIZE)
-            });
-
-            const distance = (x1, y1, x2, y2) => {
-                return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-            };
-
-            const placeOrganism = (gridX, gridY) => {
-                if (gridX < 0 || gridX >= GRID_SIZE || gridY < 0 || gridY >= GRID_SIZE) return;
-                
-                const occupied = organisms.some(org => 
-                    org.alive && org.x === gridX && org.y === gridY
-                );
-                
-                if (occupied) return;
-
-                const newOrganism = {
-                    id: generateId(),
-                    type: selectedTool,
-                    x: gridX,
-                    y: gridY,
-                    alive: true,
-                    hungerTimer: 0,
-                    reproductionTimer: 0,
-                    health: 100,
-                    trail: []
-                };
-
-                setOrganisms(prev => [...prev, newOrganism]);
-            };
-
-            const handleCanvasInteraction = (e) => {
-                if (phase !== 'setup') return;
-                
-                const canvas = canvasRef.current;
-                const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
-                const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
-                
-                const { x: gridX, y: gridY } = canvasToGrid(x, y);
-                placeOrganism(gridX, gridY);
-            };
-
-            const handleMouseDown = (e) => {
-                setIsPlacing(true);
-                handleCanvasInteraction(e);
-            };
-
-            const handleMouseMove = (e) => {
-                if (isPlacing) handleCanvasInteraction(e);
-            };
-
-            const handleMouseUp = () => {
-                setIsPlacing(false);
-            };
-
-            const startSimulation = () => {
-                if (counts.grass === 0 || counts.rabbit === 0 || counts.fox === 0) {
-                    alert('Please place at least one of each organism type!');
-                    return;
-                }
-                setPhase('playing');
-                setGameTime(0);
-                gameTimeRef.current = 0;
-                lastUpdateRef.current = Date.now();
-                setPopulationHistory([{ time: 0, ...counts }]);
-                setDeathCause('');
-            };
-
-            const clearField = () => {
-                setOrganisms([]);
-            };
-
-            const resetGame = () => {
-                setPhase('setup');
-                setGameTime(0);
-                setIsPaused(false);
-                setGameStatus(null);
-                gameTimeRef.current = 0;
-                setPopulationHistory([]);
-                setDeathCause('');
-                clearField();
-            };
-
-            const findNearest = (organism, targetType, maxRange) => {
-                let nearest = null;
-                let minDist = maxRange;
-
-                organismsRef.current.forEach(target => {
-                    if (!target.alive || target.type !== targetType) return;
-                    const dist = distance(organism.x, organism.y, target.x, target.y);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        nearest = target;
-                    }
-                });
-
-                return nearest;
-            };
-
-            const moveToward = (organism, targetX, targetY, speed, deltaTime) => {
-                const dx = targetX - organism.x;
-                const dy = targetY - organism.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                
-                if (dist === 0) return;
-                
-                const moveAmount = speed * deltaTime;
-                if (moveAmount >= dist) {
-                    organism.x = targetX;
-                    organism.y = targetY;
-                } else {
-                    organism.x += (dx / dist) * moveAmount;
-                    organism.y += (dy / dist) * moveAmount;
-                }
-
-                if (!organism.trail) organism.trail = [];
-                organism.trail.push({ x: organism.x, y: organism.y, time: Date.now() });
-                if (organism.trail.length > 20) organism.trail.shift();
-            };
-
-            const moveRandom = (organism, speed, deltaTime) => {
-                const angle = Math.random() * Math.PI * 2;
-                const moveAmount = speed * deltaTime;
-                organism.x += Math.cos(angle) * moveAmount;
-                organism.y += Math.sin(angle) * moveAmount;
-                
-                organism.x = Math.max(0, Math.min(GRID_SIZE - 1, organism.x));
-                organism.y = Math.max(0, Math.min(GRID_SIZE - 1, organism.y));
-
-                if (!organism.trail) organism.trail = [];
-                organism.trail.push({ x: organism.x, y: organism.y, time: Date.now() });
-                if (organism.trail.length > 20) organism.trail.shift();
-            };
-
-            const updateSimulation = (deltaTime) => {
-                const newOrganisms = [...organismsRef.current];
-                const toRemove = [];
-                const toAdd = [];
-
-                newOrganisms.forEach(org => {
-                    if (!org.alive) return;
-
-                    if (org.type === SPECIES.GRASS) {
-                        // Grass is stationary
-                    } else if (org.type === SPECIES.RABBIT) {
-                        org.hungerTimer += deltaTime;
-                        org.reproductionTimer += deltaTime;
-
-                        if (org.hungerTimer > TIMERS.rabbit.hunger) {
-                            org.alive = false;
-                            toRemove.push(org.id);
-                            const currentCounts = getCounts();
-                            if (currentCounts.rabbit <= 1) setDeathCause('Rabbits went extinct from starvation');
-                            return;
-                        }
-
-                        const nearestGrass = findNearest(org, SPECIES.GRASS, TIMERS.rabbit.detectionRange);
-                        
-                        if (nearestGrass) {
-                            moveToward(org, nearestGrass.x, nearestGrass.y, TIMERS.rabbit.speed, deltaTime);
-                            
-                            if (distance(org.x, org.y, nearestGrass.x, nearestGrass.y) < 0.5) {
-                                org.hungerTimer = 0;
-                                nearestGrass.alive = false;
-                                toRemove.push(nearestGrass.id);
-                            }
-                        } else {
-                            moveRandom(org, TIMERS.rabbit.speed, deltaTime);
-                        }
-
-                        if (org.hungerTimer < 6 && org.reproductionTimer > TIMERS.rabbit.reproduction) {
-                            const nearbyRabbits = organismsRef.current.filter(o => 
-                                o.alive && o.type === SPECIES.RABBIT && 
-                                distance(org.x, org.y, o.x, o.y) < 5
-                            ).length;
-
-                            if (nearbyRabbits < 8) {
-                                const angle = Math.random() * Math.PI * 2;
-                                toAdd.push({
-                                    id: generateId(),
-                                    type: SPECIES.RABBIT,
-                                    x: org.x + Math.cos(angle) * 0.5,
-                                    y: org.y + Math.sin(angle) * 0.5,
-                                    alive: true,
-                                    hungerTimer: 0,
-                                    reproductionTimer: 0,
-                                    health: 100,
-                                    trail: []
-                                });
-                                org.reproductionTimer = 0;
-                            }
-                        }
-                    } else if (org.type === SPECIES.FOX) {
-                        org.hungerTimer += deltaTime;
-                        org.reproductionTimer += deltaTime;
-
-                        if (org.hungerTimer > TIMERS.fox.hunger) {
-                            org.alive = false;
-                            toRemove.push(org.id);
-                            const currentCounts = getCounts();
-                            if (currentCounts.fox <= 1) setDeathCause('Foxes went extinct from starvation');
-                            return;
-                        }
-
-                        const nearestRabbit = findNearest(org, SPECIES.RABBIT, TIMERS.fox.detectionRange);
-                        
-                        if (nearestRabbit) {
-                            moveToward(org, nearestRabbit.x, nearestRabbit.y, TIMERS.fox.speed, deltaTime);
-                            
-                            if (distance(org.x, org.y, nearestRabbit.x, nearestRabbit.y) < 0.5) {
-                                if (Math.random() < 0.9) {
-                                    org.hungerTimer = 0;
-                                    nearestRabbit.alive = false;
-                                    toRemove.push(nearestRabbit.id);
-                                }
-                            }
-                        } else {
-                            moveRandom(org, TIMERS.fox.speed, deltaTime);
-                        }
-
-                        if (org.hungerTimer < 10 && org.reproductionTimer > TIMERS.fox.reproduction) {
-                            const nearbyRabbits = organismsRef.current.filter(o => 
-                                o.alive && o.type === SPECIES.RABBIT && 
-                                distance(org.x, org.y, o.x, o.y) < 8
-                            ).length;
-
-                            const nearbyFoxes = organismsRef.current.filter(o => 
-                                o.alive && o.type === SPECIES.FOX && 
-                                distance(org.x, org.y, o.x, o.y) < 5
-                            ).length;
-
-                            if (nearbyRabbits >= 3 && nearbyFoxes < 4) {
-                                const angle = Math.random() * Math.PI * 2;
-                                toAdd.push({
-                                    id: generateId(),
-                                    type: SPECIES.FOX,
-                                    x: org.x + Math.cos(angle) * 0.5,
-                                    y: org.y + Math.sin(angle) * 0.5,
-                                    alive: true,
-                                    hungerTimer: 0,
-                                    reproductionTimer: 0,
-                                    health: 100,
-                                    trail: []
-                                });
-                                org.reproductionTimer = 0;
-                            }
-                        }
-                    }
-                });
-
-                // Grass spreading
-                if (Math.floor(gameTimeRef.current) % 5 === 0 && Math.floor(gameTimeRef.current) !== Math.floor(gameTimeRef.current - deltaTime)) {
-                    const grassOrganisms = newOrganisms.filter(o => o.alive && o.type === SPECIES.GRASS);
-                    const totalGrass = grassOrganisms.length;
-                    const maxGrass = GRID_SIZE * GRID_SIZE * 0.7;
-
-                    if (totalGrass < maxGrass) {
-                        grassOrganisms.forEach(grass => {
-                            if (Math.random() < 0.3) {
-                                const directions = [[-1,0],[1,0],[0,-1],[0,1]];
-                                const dir = directions[Math.floor(Math.random() * directions.length)];
-                                const newX = Math.round(grass.x) + dir[0];
-                                const newY = Math.round(grass.y) + dir[1];
-
-                                if (newX >= 0 && newX < GRID_SIZE && newY >= 0 && newY < GRID_SIZE) {
-                                    const occupied = newOrganisms.some(o => 
-                                        o.alive && Math.round(o.x) === newX && Math.round(o.y) === newY
-                                    );
-
-                                    if (!occupied) {
-                                        toAdd.push({
-                                            id: generateId(),
-                                            type: SPECIES.GRASS,
-                                            x: newX,
-                                            y: newY,
-                                            alive: true,
-                                            hungerTimer: 0,
-                                            reproductionTimer: 0,
-                                            health: 100,
-                                            trail: []
-                                        });
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-
-                const filtered = newOrganisms.filter(o => !toRemove.includes(o.id));
-                const updated = [...filtered, ...toAdd];
-                
-                organismsRef.current = updated;
-                setOrganisms(updated);
-
-                // Update population history
-                if (Math.floor(gameTimeRef.current) % 1 === 0) {
-                    const newCounts = { grass: 0, rabbit: 0, fox: 0 };
-                    updated.forEach(org => {
-                        if (org.alive) newCounts[org.type]++;
-                    });
-                    setPopulationHistory(prev => [...prev, { time: gameTimeRef.current, ...newCounts }].slice(-60));
-                }
-
-                // Check win/loss
-                const newCounts = { grass: 0, rabbit: 0, fox: 0 };
-                updated.forEach(org => {
-                    if (org.alive) newCounts[org.type]++;
-                });
-
-                if (newCounts.rabbit === 0 || newCounts.fox === 0 || newCounts.grass === 0) {
-                    setGameStatus('lost');
-                    setIsPaused(true);
-                    if (!deathCause) {
-                        if (newCounts.grass === 0) setDeathCause('Grass went extinct - overgrazed by rabbits');
-                        else if (newCounts.rabbit === 0) setDeathCause('Rabbits went extinct');
-                        else if (newCounts.fox === 0) setDeathCause('Foxes went extinct');
-                    }
-                } else if (gameTimeRef.current >= WIN_DAYS * GAME_DAY_DURATION) {
-                    setGameStatus('won');
-                    setIsPaused(true);
-                }
-            };
-
-            useEffect(() => {
-                if (phase !== 'playing' || isPaused) return;
-
-                const gameLoop = () => {
-                    const now = Date.now();
-                    const realDelta = (now - lastUpdateRef.current) / 1000;
-                    const gameDelta = realDelta * speed;
-                    
-                    lastUpdateRef.current = now;
-                    gameTimeRef.current += gameDelta;
-                    setGameTime(gameTimeRef.current);
-
-                    updateSimulation(gameDelta);
-                    
-                    animationRef.current = requestAnimationFrame(gameLoop);
-                };
-
-                animationRef.current = requestAnimationFrame(gameLoop);
-
-                return () => {
-                    if (animationRef.current) {
-                        cancelAnimationFrame(animationRef.current);
-                    }
-                };
-            }, [phase, isPaused, speed]);
-
-            // Render canvas
-            useEffect(() => {
-                const canvas = canvasRef.current;
-                if (!canvas) return;
-
-                const ctx = canvas.getContext('2d');
-                const width = GRID_SIZE * TILE_SIZE;
-                const height = GRID_SIZE * TILE_SIZE;
-
-                ctx.clearRect(0, 0, width, height);
-
-                // Background gradient
-                const gradient = ctx.createLinearGradient(0, 0, 0, height);
-                gradient.addColorStop(0, '#87CEEB');
-                gradient.addColorStop(0.5, '#90EE90');
-                gradient.addColorStop(1, '#8B7355');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, width, height);
-
-                // Grid lines
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                ctx.lineWidth = 0.5;
-                for (let i = 0; i <= GRID_SIZE; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(i * TILE_SIZE, 0);
-                    ctx.lineTo(i * TILE_SIZE, height);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(0, i * TILE_SIZE);
-                    ctx.lineTo(width, i * TILE_SIZE);
-                    ctx.stroke();
-                }
-
-                // Trial mode zones
-                if (trialMode && phase === 'setup') {
-                    ctx.strokeStyle = 'rgba(34, 197, 94, 0.6)';
-                    ctx.fillStyle = 'rgba(34, 197, 94, 0.1)';
-                    ctx.lineWidth = 2;
-                    ctx.setLineDash([5, 5]);
-                    const safeSize = GRID_SIZE * TILE_SIZE * 0.5;
-                    const safeStart = GRID_SIZE * TILE_SIZE * 0.25;
-                    ctx.fillRect(safeStart, safeStart, safeSize, safeSize);
-                    ctx.strokeRect(safeStart, safeStart, safeSize, safeSize);
-
-                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
-                    ctx.fillStyle = 'rgba(239, 68, 68, 0.1)';
-                    const riskSize = GRID_SIZE * TILE_SIZE * 0.25;
-                    
-                    ctx.fillRect(0, 0, riskSize, riskSize);
-                    ctx.strokeRect(0, 0, riskSize, riskSize);
-                    ctx.fillRect(width - riskSize, 0, riskSize, riskSize);
-                    ctx.strokeRect(width - riskSize, 0, riskSize, riskSize);
-                    ctx.fillRect(0, height - riskSize, riskSize, riskSize);
-                    ctx.strokeRect(0, height - riskSize, riskSize, riskSize);
-                    ctx.fillRect(width - riskSize, height - riskSize, riskSize, riskSize);
-                    ctx.strokeRect(width - riskSize, height - riskSize, riskSize, riskSize);
-                    
-                    ctx.setLineDash([]);
-                }
-
-                // Heat map
-                if (showHeatMap && phase === 'playing') {
-                    const regionSize = 4;
-                    const regions = GRID_SIZE / regionSize;
-                    
-                    for (let ry = 0; ry < regions; ry++) {
-                        for (let rx = 0; rx < regions; rx++) {
-                            const x1 = rx * regionSize;
-                            const y1 = ry * regionSize;
-                            const x2 = x1 + regionSize;
-                            const y2 = y1 + regionSize;
-                            
-                            let grass = 0, rabbit = 0, fox = 0;
-                            organisms.forEach(org => {
-                                if (!org.alive) return;
-                                if (org.x >= x1 && org.x < x2 && org.y >= y1 && org.y < y2) {
-                                    if (org.type === SPECIES.GRASS) grass++;
-                                    else if (org.type === SPECIES.RABBIT) rabbit++;
-                                    else if (org.type === SPECIES.FOX) fox++;
-                                }
-                            });
-                            
-                            let color;
-                            if (grass > 0 && rabbit > 0 && fox > 0) {
-                                color = 'rgba(34, 197, 94, 0.3)';
-                            } else if (rabbit > 10 || fox > 5) {
-                                color = 'rgba(239, 68, 68, 0.3)';
-                            } else if (grass === 0 || rabbit === 0) {
-                                color = 'rgba(239, 68, 68, 0.3)';
-                            } else {
-                                color = 'rgba(251, 191, 36, 0.3)';
-                            }
-                            
-                            ctx.fillStyle = color;
-                            ctx.fillRect(x1 * TILE_SIZE, y1 * TILE_SIZE, regionSize * TILE_SIZE, regionSize * TILE_SIZE);
-                        }
-                    }
-                }
-
-                // Movement trails
-                const now = Date.now();
-                organisms.forEach(org => {
-                    if (!org.alive || org.type === SPECIES.GRASS || !org.trail) return;
-                    
-                    const colors = {
-                        rabbit: 'rgba(251, 146, 60, 0.3)',
-                        fox: 'rgba(239, 68, 68, 0.3)'
-                    };
-                    
-                    ctx.strokeStyle = colors[org.type];
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    
-                    org.trail.forEach((point, i) => {
-                        if (now - point.time > 2000) return;
-                        const pos = gridToCanvas(point.x, point.y);
-                        if (i === 0) ctx.moveTo(pos.x, pos.y);
-                        else ctx.lineTo(pos.x, pos.y);
-                    });
-                    
-                    ctx.stroke();
-                });
-
-                // Draw organisms
-                organisms.forEach(org => {
-                    if (!org.alive) return;
-
-                    const pos = gridToCanvas(org.x, org.y);
-                    const sizes = {
-                        grass: TILE_SIZE * 0.1,
-                        rabbit: TILE_SIZE * 0.25,
-                        fox: TILE_SIZE * 0.5
-                    };
-                    
-                    const isHungry = org.type === SPECIES.RABBIT ? org.hungerTimer > 6 : org.hungerTimer > 10;
-                    const colors = {
-                        grass: '#22c55e',
-                        rabbit: isHungry ? '#fed7aa' : '#fb923c',
-                        fox: isHungry ? '#fca5a5' : '#ef4444'
-                    };
-                    
-                    const opacity = isHungry && org.type !== SPECIES.GRASS ? 0.6 : 1.0;
-
-                    ctx.globalAlpha = opacity;
-                    ctx.fillStyle = colors[org.type];
-                    ctx.beginPath();
-                    ctx.arc(pos.x, pos.y, sizes[org.type], 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.strokeStyle = org.type === 'grass' ? '#15803d' : 
-                                      org.type === 'rabbit' ? (isHungry ? '#fdba74' : '#ea580c') : 
-                                      (isHungry ? '#fca5a5' : '#991b1b');
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                    ctx.globalAlpha = 1.0;
-                });
-            }, [organisms, trialMode, showHeatMap, phase]);
-
-            const formatTime = (seconds) => {
-                const days = Math.floor(seconds / GAME_DAY_DURATION);
-                const remainingSeconds = Math.floor(seconds % GAME_DAY_DURATION);
-                return `Day ${days} (${remainingSeconds}s)`;
-            };
-
-            const PopulationGraph = () => {
-                if (!showGraphs || populationHistory.length < 2) return null;
-
-                const graphHeight = 120;
-                const graphWidth = GRID_SIZE * TILE_SIZE;
-                const maxPop = Math.max(
-                    ...populationHistory.map(h => Math.max(h.grass, h.rabbit * 3, h.fox * 10))
-                );
-
-                return (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 p-2">
-                        <svg width={graphWidth} height={graphHeight} className="w-full">
-                            <defs>
-                                <linearGradient id="grassGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stopColor="#22c55e" stopOpacity="0.6" />
-                                    <stop offset="100%" stopColor="#22c55e" stopOpacity="0.1" />
-                                </linearGradient>
-                            </defs>
-                            
-                            <path
-                                d={populationHistory.map((h, i) => {
-                                    const x = (i / (populationHistory.length - 1)) * graphWidth;
-                                    const y = graphHeight - (h.grass / maxPop) * graphHeight;
-                                    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-                                }).join(' ') + ` L ${graphWidth} ${graphHeight} L 0 ${graphHeight} Z`}
-                                fill="url(#grassGradient)"
-                                stroke="#22c55e"
-                                strokeWidth="2"
-                            />
-                            
-                            <path
-                                d={populationHistory.map((h, i) => {
-                                    const x = (i / (populationHistory.length - 1)) * graphWidth;
-                                    const y = graphHeight - ((h.rabbit * 3) / maxPop) * graphHeight;
-                                    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-                                }).join(' ')}
-                                fill="none"
-                                stroke="#fb923c"
-                                strokeWidth="2"
-                            />
-                            
-                            <path
-                                d={populationHistory.map((h, i) => {
-                                    const x = (i / (populationHistory.length - 1)) * graphWidth;
-                                    const y = graphHeight - ((h.fox * 10) / maxPop) * graphHeight;
-                                    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-                                }).join(' ')}
-                                fill="none"
-                                stroke="#ef4444"
-                                strokeWidth="2"
-                            />
-                        </svg>
-                    </div>
-                );
-            };
-
-            return (
-                <div className="flex flex-col h-screen bg-slate-900 text-white">
-                    <div className="h-16 bg-gradient-to-r from-slate-700 to-slate-800 flex items-center justify-between px-4 shadow-lg">
-                        <div className="flex gap-2">
-                            <button 
-                                onClick={() => setShowTutorial(true)}
-                                className="p-2 hover:bg-slate-600 rounded"
-                            >
-                                <Info />
-                            </button>
-                        </div>
-                        <div className="text-xl font-bold">
-                            {phase === 'setup' ? 'Setup Phase' : 'Ecosystem Simulation'}
-                        </div>
-                        <div className="flex gap-2">
-                            {phase === 'playing' && (
-                                <>
-                                    <button 
-                                        onClick={() => setShowGraphs(!showGraphs)}
-                                        className={`p-2 rounded ${showGraphs ? 'bg-blue-600' : 'hover:bg-slate-600'}`}
-                                    >
-                                        <BarChart3 />
-                                    </button>
-                                    <button 
-                                        onClick={() => setShowHeatMap(!showHeatMap)}
-                                        className={`p-2 rounded ${showHeatMap ? 'bg-blue-600' : 'hover:bg-slate-600'}`}
-                                    >
-                                        <MapPin />
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex-1 flex items-center justify-center bg-slate-800 p-4 relative">
-                        <div className="relative">
-                            <canvas
-                                ref={canvasRef}
-                                width={GRID_SIZE * TILE_SIZE}
-                                height={GRID_SIZE * TILE_SIZE}
-                                onMouseDown={handleMouseDown}
-                                onMouseMove={handleMouseMove}
-                                onMouseUp={handleMouseUp}
-                                onMouseLeave={handleMouseUp}
-                                onTouchStart={handleMouseDown}
-                                onTouchMove={handleMouseMove}
-                                onTouchEnd={handleMouseUp}
-                                className="border-2 border-slate-600 cursor-crosshair"
-                            />
-                            <PopulationGraph />
-                        </div>
-                    </div>
-
-                    <div className="h-16 bg-slate-950 flex items-center justify-around px-4">
-                        <div className="text-green-400 font-semibold">🌱 {counts.grass}</div>
-                        <div className="text-orange-400 font-semibold">🐰 {counts.rabbit}</div>
-                        <div className="text-red-400 font-semibold">🦊 {counts.fox}</div>
-                        {phase === 'playing' && (
-                            <div className="text-blue-400 font-semibold">{formatTime(gameTime)}</div>
-                        )}
-                    </div>
-
-                    <div className="bg-slate-800 p-4">
-                        {phase === 'setup' ? (
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm">Trial Mode (Show Zones)</span>
-                                    <button
-                                        onClick={() => setTrialMode(!trialMode)}
-                                        className={`w-12 h-6 rounded-full transition-colors relative ${
-                                            trialMode ? 'bg-green-500' : 'bg-slate-600'
-                                        }`}
-                                    >
-                                        <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
-                                            trialMode ? 'translate-x-6' : 'translate-x-1'
-                                        }`} />
-                                    </button>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => setSelectedTool(SPECIES.GRASS)}
-                                        className={`flex-1 py-3 rounded font-semibold transition-colors ${
-                                            selectedTool === SPECIES.GRASS
-                                                ? 'bg-green-500 text-white'
-                                                : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                                        }`}
-                                    >
-                                        🌱 Grass
-                                    </button>
-                                    <button
-                                        onClick={() => setSelectedTool(SPECIES.RABBIT)}
-                                        className={`flex-1 py-3 rounded font-semibold transition-colors ${
-                                            selectedTool === SPECIES.RABBIT
-                                                ? 'bg-orange-500 text-white'
-                                                : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                                        }`}
-                                    >
-                                        🐰 Rabbit
-                                    </button>
-                                    <button
-                                        onClick={() => setSelectedTool(SPECIES.FOX)}
-                                        className={`flex-1 py-3 rounded font-semibold transition-colors ${
-                                            selectedTool === SPECIES.FOX
-                                                ? 'bg-red-500 text-white'
-                                                : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                                        }`}
-                                    >
-                                        🦊 Fox
-                                    </button>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={startSimulation}
-                                        className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 rounded font-semibold transition-colors"
-                                    >
-                                        Start Simulation
-                                    </button>
-                                    <button
-                                        onClick={clearField}
-                                        className="px-6 py-3 bg-red-500 hover:bg-red-600 rounded font-semibold transition-colors"
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-4">
-                                    <button
-                                        onClick={() => setIsPaused(!isPaused)}
-                                        className="p-3 bg-blue-500 hover:bg-blue-600 rounded transition-colors"
-                                    >
-                                        {isPaused ? <Play /> : <Pause />}
-                                    </button>
-                                    <div className="flex-1">
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span>Speed: {speed}x</span>
-                                            <span className="text-slate-400">0.5x - 4x</span>
-                                        </div>
-                                        <input
-                                            type="range"
-                                            min="0.5"
-                                            max="4"
-                                            step="0.5"
-                                            value={speed}
-                                            onChange={(e) => setSpeed(parseFloat(e.target.value))}
-                                            className="w-full"
-                                        />
-                                    </div>
-                                    <button
-                                        onClick={resetGame}
-                                        className="p-3 bg-red-500 hover:bg-red-600 rounded transition-colors"
-                                    >
-                                        <RotateCcw />
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {showTutorial && (
-                        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 overflow-y-auto">
-                            <div className="bg-slate-800 p-6 rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-2xl font-bold">How to Play</h2>
-                                    <button onClick={() => setShowTutorial(false)} className="p-2 hover:bg-slate-700 rounded">
-                                        <X />
-                                    </button>
-                                </div>
-                                
-                                <div className="space-y-4 text-sm">
-                                    <section>
-                                        <h3 className="text-lg font-bold text-green-400 mb-2">🎯 Goal</h3>
-                                        <p>Create a balanced ecosystem that survives for 10 days (5 minutes). All three species must stay alive!</p>
-                                    </section>
-
-                                    <section>
-                                        <h3 className="text-lg font-bold text-blue-400 mb-2">🌱 Setup Phase</h3>
-                                        <ul className="list-disc list-inside space-y-1">
-                                            <li>Select Grass, Rabbit, or Fox</li>
-                                            <li>Click/tap and hold to place organisms</li>
-                                            <li>Use Trial Mode to see safe (green) and risky (red) zones</li>
-                                            <li>Press Start when ready</li>
-                                        </ul>
-                                    </section>
-
-                                    <section>
-                                        <h3 className="text-lg font-bold text-purple-400 mb-2">⚡ Species Mechanics</h3>
-                                        <div className="space-y-2">
-                                            <div>
-                                                <strong className="text-green-400">🌱 Grass:</strong> Spreads every 5 seconds. Eaten by rabbits.
-                                            </div>
-                                            <div>
-                                                <strong className="text-orange-400">🐰 Rabbits:</strong> Hunt grass within 3 tiles. Starve in 12s. Reproduce every 40s.
-                                            </div>
-                                            <div>
-                                                <strong className="text-red-400">🦊 Foxes:</strong> Hunt rabbits within 5 tiles. Starve in 25s. Reproduce every 90s.
-                                            </div>
-                                        </div>
-                                    </section>
-
-                                    <section>
-                                        <h3 className="text-lg font-bold text-yellow-400 mb-2">💡 Tips</h3>
-                                        <ul className="list-disc list-inside space-y-1">
-                                            <li><strong>Ratio:</strong> Try 120 Grass : 35 Rabbits : 10 Foxes</li>
-                                            <li><strong>Spacing:</strong> Don't place all in corners - they'll starve!</li>
-                                            <li><strong>Clusters:</strong> Create 4-6 grass clusters across the field</li>
-                                            <li><strong>Balance:</strong> Too many predators = prey extinction</li>
-                                        </ul>
-                                    </section>
-
-                                    <section>
-                                        <h3 className="text-lg font-bold text-red-400 mb-2">❌ Common Failures</h3>
-                                        <ul className="list-disc list-inside space-y-1">
-                                            <li>Too many foxes → Rabbits extinct</li>
-                                            <li>Too few foxes → Rabbits overgraze → All grass gone</li>
-                                            <li>Corner placement → Can't reach food in time</li>
-                                        </ul>
-                                    </section>
-
-                                    <section>
-                                        <h3 className="text-lg font-bold text-cyan-400 mb-2">🎮 During Simulation</h3>
-                                        <ul className="list-disc list-inside space-y-1">
-                                            <li>Use Pause/Play to observe</li>
-                                            <li>Adjust speed (0.5x to 4x)</li>
-                                            <li>Toggle graphs (📊) to see population trends</li>
-                                            <li>Toggle heat map (📍) to see regional health</li>
-                                        </ul>
-                                    </section>
-                                </div>
-
-                                <button
-                                    onClick={() => setShowTutorial(false)}
-                                    className="w-full mt-6 py-3 bg-blue-500 hover:bg-blue-600 rounded font-semibold"
-                                >
-                                    Got It!
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {gameStatus && (
-                        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-                            <div className="bg-slate-800 p-8 rounded-lg max-w-md">
-                                <h2 className={`text-3xl font-bold mb-4 ${
-                                    gameStatus === 'won' ? 'text-green-400' : 'text-red-400'
-                                }`}>
-                                    {gameStatus === 'won' ? '🏆 Victory!' : '💀 Ecosystem Collapsed'}
-                                </h2>
-                                <p className="text-lg mb-4">
-                                    {gameStatus === 'won'
-                                        ? `You successfully maintained a balanced ecosystem for ${WIN_DAYS} days!`
-                                        : deathCause || 'One or more species went extinct. The ecosystem could not sustain itself.'}
-                                </p>
-                                <div className="bg-slate-900 p-4 rounded mb-6 space-y-2">
-                                    <div className="font-bold mb-2">Final Statistics:</div>
-                                    <div className="flex justify-between">
-                                        <span className="text-green-400">🌱 Grass:</span>
-                                        <span className="font-bold">{counts.grass}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-orange-400">🐰 Rabbits:</span>
-                                        <span className="font-bold">{counts.rabbit}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-red-400">🦊 Foxes:</span>
-                                        <span className="font-bold">{counts.fox}</span>
-                                    </div>
-                                    <div className="flex justify-between border-t border-slate-700 pt-2 mt-2">
-                                        <span className="text-blue-400">Time Survived:</span>
-                                        <span className="font-bold">{formatTime(gameTime)}</span>
-                                    </div>
-                                </div>
-                                {gameStatus === 'lost' && (
-                                    <div className="bg-red-900 bg-opacity-30 p-3 rounded mb-4 text-sm">
-                                        <strong>💡 Tip:</strong> {
-                                            counts.fox === 0 ? 'Place foxes closer to rabbit populations or reduce rabbit numbers.' :
-                                            counts.rabbit === 0 ? 'Reduce fox count or spread rabbits across more grass zones.' :
-                                            counts.grass === 0 ? 'Start with more grass or fewer rabbits to prevent overgrazing.' :
-                                            'Check your placement and ratios!'
-                                        }
-                                    </div>
-                                )}
-                                <button
-                                    onClick={resetGame}
-                                    className="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded font-semibold transition-colors"
-                                >
-                                    Try Again
-                                </button>
-                            </div>
-                        </div>
-                    )}
+        <!-- Field -->
+        <div id="field-container">
+            <div id="field">
+                <div class="trial-zone safe-zone" id="safe-zone"></div>
+                <div class="trial-zone risk-zone" id="risk-zone-tl"></div>
+                <div class="trial-zone risk-zone" id="risk-zone-tr"></div>
+                <div class="trial-zone risk-zone" id="risk-zone-bl"></div>
+                <div class="trial-zone risk-zone" id="risk-zone-br"></div>
+            </div>
+        </div>
+        
+        <!-- Stats Bar -->
+        <div id="stats-bar">
+            <div class="stat">
+                <div class="stat-label">Grass</div>
+                <div class="stat-value" style="color: #22c55e;" id="grass-count">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Rabbits</div>
+                <div class="stat-value" style="color: #fb923c;" id="rabbit-count">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Foxes</div>
+                <div class="stat-value" style="color: #ef4444;" id="fox-count">0</div>
+            </div>
+            <div class="stat" id="time-stat" style="display: none;">
+                <div class="stat-label">Time</div>
+                <div class="stat-value" id="time-value">0s</div>
+            </div>
+        </div>
+        
+        <!-- Controls Panel -->
+        <div id="controls-panel">
+            <div id="setup-controls">
+                <div class="control-row">
+                    <span style="font-size: 13px;">Trial Mode</span>
+                    <div class="toggle-switch" id="trial-toggle" onclick="toggleTrialMode()"></div>
                 </div>
-            );
-        };
+                <div class="control-row">
+                    <button class="tool-btn grass-btn active" onclick="selectTool('grass')">🌱 Grass</button>
+                    <button class="tool-btn rabbit-btn" onclick="selectTool('rabbit')">🐰 Rabbit</button>
+                    <button class="tool-btn fox-btn" onclick="selectTool('fox')">🦊 Fox</button>
+                </div>
+                <div class="control-row">
+                    <button class="action-btn primary-btn" onclick="startSimulation()">Start Simulation</button>
+                    <button class="action-btn secondary-btn" onclick="clearField()">Clear</button>
+                </div>
+            </div>
+            
+            <div id="playing-controls" style="display: none;">
+                <div class="control-row">
+                    <button class="action-btn primary-btn" id="pause-btn" onclick="togglePause()">⏸️ Pause</button>
+                    <button class="action-btn secondary-btn" onclick="resetGame()">🔄 Reset</button>
+                </div>
+                <div class="speed-control">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 13px;">Speed</span>
+                        <span id="speed-value" style="font-size: 13px; font-weight: 600;">1.0x</span>
+                    </div>
+                    <input type="range" min="0.5" max="4" step="0.5" value="1" id="speed-slider" 
+                           style="width: 100%;" onchange="updateSpeed(this.value)">
+                    <div class="speed-markers">
+                        <span>0.5x</span>
+                        <span>1x</span>
+                        <span>2x</span>
+                        <span>4x</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal" id="victory-modal">
+        <div class="modal-content">
+            <h2>🏆 Victory!</h2>
+            <p>Your ecosystem survived for 10 days!</p>
+            <button class="action-btn primary-btn" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="gameover-modal">
+        <div class="modal-content">
+            <h2>💀 Ecosystem Collapsed</h2>
+            <p id="gameover-reason"></p>
+            <button class="action-btn primary-btn" onclick="resetGame()">Try Again</button>
+        </div>
+    </div>
 
-        ReactDOM.render(<EcosystemGame />, document.getElementById('root'));
+    <script>
+        // Game state
+        const GRID_SIZE = 20;
+        const VICTORY_TIME = 300; // 10 days * 30 seconds
+        let gameState = {
+            phase: 'setup',
+            gameTime: 0,
+            speed: 1.0,
+            isPaused: false,
+            trialMode: false,
+            selectedTool: 'grass',
+            organisms: [],
+            grid: [],
+            nextId: 0,
+            isPlacing: false,
+            lastPlaceTime: 0
+        };
+        
+        let tileSize = 0;
+        let fieldWidth = 0;
+        let fieldHeight = 0;
+        let animationFrame = null;
+        let lastUpdate = 0;
+        
+        // Initialize grid
+        function initGrid() {
+            gameState.grid = [];
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    gameState.grid.push({
+                        x, y,
+                        groundLayer: null,
+                        animalLayer: null,
+                        grassId: null,
+                        animalId: null
+                    });
+                }
+            }
+        }
+        
+        function getTile(x, y) {
+            if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return null;
+            return gameState.grid[y * GRID_SIZE + x];
+        }
+        
+        // Calculate field dimensions
+        function calculateDimensions() {
+            const field = document.getElementById('field');
+            fieldWidth = field.clientWidth;
+            fieldHeight = field.clientHeight;
+            tileSize = Math.min(fieldWidth / GRID_SIZE, fieldHeight / GRID_SIZE);
+            
+            // Position trial zones
+            const safeSize = tileSize * GRID_SIZE * 0.5;
+            const riskSize = tileSize * GRID_SIZE * 0.25;
+            
+            const safe = document.getElementById('safe-zone');
+            safe.style.width = safeSize + 'px';
+            safe.style.height = safeSize + 'px';
+            safe.style.left = (fieldWidth - safeSize) / 2 + 'px';
+            safe.style.top = (fieldHeight - safeSize) / 2 + 'px';
+            
+            document.getElementById('risk-zone-tl').style.cssText = 
+                `width: ${riskSize}px; height: ${riskSize}px; left: 0; top: 0;`;
+            document.getElementById('risk-zone-tr').style.cssText = 
+                `width: ${riskSize}px; height: ${riskSize}px; right: 0; top: 0;`;
+            document.getElementById('risk-zone-bl').style.cssText = 
+                `width: ${riskSize}px; height: ${riskSize}px; left: 0; bottom: 0;`;
+            document.getElementById('risk-zone-br').style.cssText = 
+                `width: ${riskSize}px; height: ${riskSize}px; right: 0; bottom: 0;`;
+        }
+        
+        // Tool selection
+        function selectTool(tool) {
+            gameState.selectedTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.${tool}-btn`).classList.add('active');
+        }
+        
+        function toggleTrialMode() {
+            gameState.trialMode = !gameState.trialMode;
+            document.getElementById('trial-toggle').classList.toggle('active');
+            document.querySelectorAll('.trial-zone').forEach(zone => {
+                zone.classList.toggle('visible');
+            });
+        }
+        
+        // Organism creation
+        function createOrganism(type, x, y) {
+            const tile = getTile(x, y);
+            if (!tile) return null;
+            
+            // Check layer rules
+            if (type === 'grass') {
+                if (tile.groundLayer) return null; // Already has grass
+            } else {
+                if (tile.animalLayer) return null; // Already has animal
+            }
+            
+            const org = {
+                id: gameState.nextId++,
+                type: type,
+                x: x,
+                y: y,
+                health: 100,
+                hungerTimer: 0,
+                reproductionCooldown: type === 'rabbit' ? 40 : 90,
+                isAlive: true,
+                element: null
+            };
+            
+            // Update tile
+            if (type === 'grass') {
+                tile.groundLayer = 'grass';
+                tile.grassId = org.id;
+            } else {
+                tile.animalLayer = type;
+                tile.animalId = org.id;
+            }
+            
+            gameState.organisms.push(org);
+            createOrganismElement(org);
+            updateCounts();
+            return org;
+        }
+        
+        function createOrganismElement(org) {
+            const el = document.createElement('div');
+            el.className = `organism ${org.type}`;
+            const size = org.type === 'grass' ? tileSize * 0.1 : 
+                         org.type === 'rabbit' ? tileSize * 0.25 : tileSize * 0.5;
+            el.style.width = size + 'px';
+            el.style.height = size + 'px';
+            el.style.fontSize = (size * 0.6) + 'px';
+            el.textContent = org.type === 'grass' ? '🌱' : org.type === 'rabbit' ? '🐰' : '🦊';
+            document.getElementById('field').appendChild(el);
+            org.element = el;
+            updateOrganismPosition(org);
+        }
+        
+        function updateOrganismPosition(org) {
+            if (!org.element) return;
+            const size = org.type === 'grass' ? tileSize * 0.1 : 
+                         org.type === 'rabbit' ? tileSize * 0.25 : tileSize * 0.5;
+            org.element.style.left = (org.x * tileSize + tileSize/2 - size/2) + 'px';
+            org.element.style.top = (org.y * tileSize + tileSize/2 - size/2) + 'px';
+        }
+        
+        // Placement handling
+        function handleFieldTouch(e) {
+            if (gameState.phase !== 'setup') return;
+            
+            e.preventDefault();
+            const touch = e.touches ? e.touches[0] : e;
+            const rect = document.getElementById('field').getBoundingClientRect();
+            const x = Math.floor((touch.clientX - rect.left) / tileSize);
+            const y = Math.floor((touch.clientY - rect.top) / tileSize);
+            
+            const now = Date.now();
+            if (now - gameState.lastPlaceTime > 100) {
+                createOrganism(gameState.selectedTool, x, y);
+                gameState.lastPlaceTime = now;
+            }
+        }
+        
+        // Game controls
+        function startSimulation() {
+            if (gameState.organisms.length === 0) return;
+            
+            gameState.phase = 'playing';
+            gameState.gameTime = 0;
+            document.getElementById('phase-title').textContent = 'Ecosystem';
+            document.getElementById('setup-controls').style.display = 'none';
+            document.getElementById('playing-controls').style.display = 'block';
+            document.getElementById('time-stat').style.display = 'flex';
+            document.getElementById('graph-btn').style.display = 'block';
+            
+            lastUpdate = Date.now();
+            gameLoop();
+        }
+        
+        function togglePause() {
+            gameState.isPaused = !gameState.isPaused;
+            const btn = document.getElementById('pause-btn');
+            btn.textContent = gameState.isPaused ? '▶️ Play' : '⏸️ Pause';
+        }
+        
+        function updateSpeed(value) {
+            gameState.speed = parseFloat(value);
+            document.getElementById('speed-value').textContent = value + 'x';
+        }
+        
+        function clearField() {
+            gameState.organisms.forEach(org => {
+                if (org.element) org.element.remove();
+            });
+            gameState.organisms = [];
+            initGrid();
+            updateCounts();
+        }
+        
+        function resetGame() {
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+            clearField();
+            gameState.phase = 'setup';
+            gameState.gameTime = 0;
+            gameState.isPaused = false;
+            document.getElementById('phase-title').textContent = 'Setup Phase';
+            document.getElementById('setup-controls').style.display = 'block';
+            document.getElementById('playing-controls').style.display = 'none';
+            document.getElementById('time-stat').style.display = 'none';
+            document.getElementById('graph-btn').style.display = 'none';
+            document.getElementById('victory-modal').classList.remove('visible');
+            document.getElementById('gameover-modal').classList.remove('visible');
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (gameState.phase !== 'playing') return;
+            
+            const now = Date.now();
+            const deltaTime = (now - lastUpdate) / 1000 * gameState.speed;
+            lastUpdate = now;
+            
+            if (!gameState.isPaused) {
+                gameState.gameTime += deltaTime;
+                updateGame(deltaTime);
+                checkWinLoss();
+            }
+            
+            updateUI();
+            animationFrame = requestAnimationFrame(gameLoop);
+        }
+        
+        function updateGame(dt) {
+            // Update organisms
+            gameState.organisms.forEach(org => {
+                if (!org.isAlive) return;
+                
+                if (org.type === 'rabbit') {
+                    updateRabbit(org, dt);
+                } else if (org.type === 'fox') {
+                    updateFox(org, dt);
+                }
+            });
+            
+            // Grass growth (every 5 seconds)
+            if (Math.random() < dt / 5) {
+                growGrass();
+            }
+            
+            // Remove dead organisms
+            gameState.organisms = gameState.organisms.filter(org => {
+                if (!org.isAlive) {
+                    if (org.element) org.element.remove();
+                    const tile = getTile(org.x, org.y);
+                    if (tile) {
+                        if (org.type === 'grass') {
+                            tile.groundLayer = null;
+                            tile.grassId = null;
+                        } else {
+                            tile.animalLayer = null;
+                            tile.animalId = null;
+                        }
+                    }
+                    return false;
+                }
+                return true;
+            });
+        }
+        
+        function updateRabbit(rabbit, dt) {
+            rabbit.hungerTimer += dt;
+            rabbit.reproductionCooldown -= dt;
+            
+            // Update visual hunger state
+            if (rabbit.hungerTimer > 6) {
+                rabbit.element.classList.add('hungry');
+            } else {
+                rabbit.element.classList.remove('hungry');
+            }
+            
+            // Death from starvation
+            if (rabbit.hungerTimer > 12) {
+                rabbit.isAlive = false;
+                return;
+            }
+            
+            // Movement
+            const tile = getTile(rabbit.x, rabbit.y);
+            if (tile && tile.groundLayer === 'grass') {
+                // Eat grass on current tile
+                tile.groundLayer = null;
+                const grassOrg = gameState.organisms.find(o => o.id === tile.grassId);
+                if (grassOrg) grassOrg.isAlive = false;
+                tile.grassId = null;
+                rabbit.hungerTimer = 0;
+            } else if (rabbit.hungerTimer > 6) {
+                // Look for grass
+                const nearestGrass = findNearestGrass(rabbit.x, rabbit.y, 3);
+                if (nearestGrass) {
+                    moveTowards(rabbit, nearestGrass.x, nearestGrass.y, dt * 2);
+                } else {
+                    moveRandom(rabbit, dt * 2);
+                }
+            } else {
+                moveRandom(rabbit, dt * 2);
+            }
+            
+            // Reproduction
+            if (rabbit.reproductionCooldown <= 0 && rabbit.hungerTimer < 6) {
+                reproduceRabbit(rabbit);
+            }
+            
+            updateOrganismPosition(rabbit);
+        }
+        
+        function updateFox(fox, dt) {
+            fox.hungerTimer += dt;
+            fox.reproductionCooldown -= dt;
+            
+            // Update visual hunger state
+            if (fox.hungerTimer > 10) {
+                fox.element.classList.add('hungry');
+            } else {
+                fox.element.classList.remove('hungry');
+            }
+            
+            // Death from starvation
+            if (fox.hungerTimer > 25) {
+                fox.isAlive = false;
+                return;
+            }
+            
+            // Check if on tile with rabbit
+            const tile = getTile(fox.x, fox.y);
+            const rabbitHere = gameState.organisms.find(o => 
+                o.type === 'rabbit' && o.isAlive && o.x === fox.x && o.y === fox.y && o.id !== fox.id
+            );
+            
+            if (rabbitHere) {
+                rabbitHere.isAlive = false;
+                fox.hungerTimer = 0;
+            } else if (fox.hungerTimer > 10) {
+                // Hunt for rabbits
+                const nearestRabbit = findNearestRabbit(fox.x, fox.y, 5);
+                if (nearestRabbit) {
+                    moveTowards(fox, nearestRabbit.x, nearestRabbit.y, dt * 4);
+                } else {
+                    moveRandom(fox, dt * 4);
+                }
+            } else {
+                moveRandom(fox, dt * 4);
+            }
+            
+            // Reproduction
+            if (fox.reproductionCooldown <= 0 && fox.hungerTimer < 10) {
+                reproduceFox(fox);
+            }
+            
+            updateOrganismPosition(fox);
+        }
+        
+        function moveTowards(org, targetX, targetY, speed) {
+            const dx = targetX - org.x;
+            const dy = targetY - org.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < 0.1) return;
+            
+            const newX = org.x + (dx / dist) * speed;
+            const newY = org.y + (dy / dist) * speed;
+            
+            moveOrganism(org, Math.round(newX), Math.round(newY));
+        }
+        
+        function moveRandom(org, speed) {
+            const angle = Math.random() * Math.PI * 2;
+            const newX = Math.round(org.x + Math.cos(angle) * speed);
+            const newY = Math.round(org.y + Math.sin(angle) * speed);
+            moveOrganism(org, newX, newY);
+        }
+        
+        function moveOrganism(org, newX, newY) {
+            newX = Math.max(0, Math.min(GRID_SIZE - 1, newX));
+            newY = Math.max(0, Math.min(GRID_SIZE - 1, newY));
+            
+            if (newX === org.x && newY === org.y) return;
+            
+            const newTile = getTile(newX, newY);
+            if (!newTile) return;
+            
+            // Check if can move
+            if (org.type === 'rabbit' && newTile.animalLayer === 'fox') return;
+            if (org.type === 'fox' && newTile.animalLayer === 'fox') return;
+            
+            // Update old tile
+            const oldTile = getTile(org.x, org.y);
+            if (oldTile) {
+                oldTile.animalLayer = null;
+                oldTile.animalId = null;
+            }
+            
+            // Update position
+            org.x = newX;
+            org.y = newY;
+            
+            // Update new tile
+            newTile.animalLayer = org.type;
+            newTile.animalId = org.id;
+        }
+        
+        function findNearestGrass(x, y, range) {
+            let nearest = null;
+            let minDist = range + 1;
+            
+            for (let dy = -range; dy <= range; dy++) {
+                for (let dx = -range; dx <= range; dx++) {
+                    const tile = getTile(x + dx, y + dy);
+                    if (tile && tile.groundLayer === 'grass') {
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearest = tile;
+                        }
+                    }
+                }
+            }
+            
+            return nearest;
+        }
+        
+        function findNearestRabbit(x, y, range) {
+            let nearest = null;
+            let minDist = range + 1;
+            
+            gameState.organisms.forEach(org => {
+                if (org.type === 'rabbit' && org.isAlive) {
+                    const dx = org.x - x;
+                    const dy = org.y - y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < minDist && dist <= range) {
+                        minDist = dist;
+                        nearest = org;
+                    }
+                }
+            });
+            
+            return nearest;
+        }
+        
+        function reproduceRabbit(rabbit) {
+            // Find empty adjacent tile
+            const adjacent = [
+                {x: rabbit.x - 1, y: rabbit.y},
+                {x: rabbit.x + 1, y: rabbit.y},
+                {x: rabbit.x, y: rabbit.y - 1},
+                {x: rabbit.x, y: rabbit.y + 1}
+            ];
+            
+            for (let pos of adjacent) {
+                const tile = getTile(pos.x, pos.y);
+                if (tile && !tile.animalLayer) {
+                    // Check density
+                    let nearbyRabbits = 0;
+                    for (let dy = -5; dy <= 5; dy++) {
+                        for (let dx = -5; dx <= 5; dx++) {
+                            const checkTile = getTile(pos.x + dx, pos.y + dy);
+                            if (checkTile && checkTile.animalLayer === 'rabbit') {
+                                nearbyRabbits++;
+                            }
+                        }
+                    }
+                    
+                    if (nearbyRabbits < 8) {
+                        createOrganism('rabbit', pos.x, pos.y);
+                        rabbit.reproductionCooldown = 40;
+                        return;
+                    }
+                }
+            }
+        }
+        
+        function reproduceFox(fox) {
+            // Count nearby rabbits
+            let nearbyRabbits = 0;
+            for (let dy = -8; dy <= 8; dy++) {
+                for (let dx = -8; dx <= 8; dx++) {
+                    const tile = getTile(fox.x + dx, fox.y + dy);
+                    if (tile && tile.animalLayer === 'rabbit') {
+                        nearbyRabbits++;
+                    }
+                }
+            }
+            
+            if (nearbyRabbits < 3) return;
+            
+            // Find empty adjacent tile
+            const adjacent = [
+                {x: fox.x - 1, y: fox.y},
+                {x: fox.x + 1, y: fox.y},
+                {x: fox.x, y: fox.y - 1},
+                {x: fox.x, y: fox.y + 1}
+            ];
+            
+            for (let pos of adjacent) {
+                const tile = getTile(pos.x, pos.y);
+                if (tile && !tile.animalLayer) {
+                    // Check density
+                    let nearbyFoxes = 0;
+                    for (let dy = -5; dy <= 5; dy++) {
+                        for (let dx = -5; dx <= 5; dx++) {
+                            const checkTile = getTile(pos.x + dx, pos.y + dy);
+                            if (checkTile && checkTile.animalLayer === 'fox') {
+                                nearbyFoxes++;
+                            }
+                        }
+                    }
+                    
+                    if (nearbyFoxes < 4) {
+                        createOrganism('fox', pos.x, pos.y);
+                        fox.reproductionCooldown = 90;
+                        return;
+                    }
+                }
+            }
+        }
+        
+        function growGrass() {
+            const grassTiles = [];
+            gameState.grid.forEach(tile => {
+                if (tile.groundLayer === 'grass') grassTiles.push(tile);
+            });
+            
+            if (grassTiles.length === 0) return;
+            
+            // Check 70% limit
+            const maxGrass = Math.floor(GRID_SIZE * GRID_SIZE * 0.7);
+            if (grassTiles.length >= maxGrass) return;
+            
+            // Pick random grass tile to spread from
+            const sourceTile = grassTiles[Math.floor(Math.random() * grassTiles.length)];
+            
+            // Try adjacent tiles
+            const adjacent = [
+                getTile(sourceTile.x - 1, sourceTile.y),
+                getTile(sourceTile.x + 1, sourceTile.y),
+                getTile(sourceTile.x, sourceTile.y - 1),
+                getTile(sourceTile.x, sourceTile.y + 1)
+            ].filter(t => t && !t.groundLayer);
+            
+            if (adjacent.length > 0) {
+                const targetTile = adjacent[Math.floor(Math.random() * adjacent.length)];
+                createOrganism('grass', targetTile.x, targetTile.y);
+            }
+        }
+        
+        function updateCounts() {
+            const counts = {grass: 0, rabbit: 0, fox: 0};
+            gameState.organisms.forEach(org => {
+                if (org.isAlive) counts[org.type]++;
+            });
+            
+            document.getElementById('grass-count').textContent = counts.grass;
+            document.getElementById('rabbit-count').textContent = counts.rabbit;
+            document.getElementById('fox-count').textContent = counts.fox;
+        }
+        
+        function updateUI() {
+            updateCounts();
+            const minutes = Math.floor(gameState.gameTime / 60);
+            const seconds = Math.floor(gameState.gameTime % 60);
+            document.getElementById('time-value').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function checkWinLoss() {
+            const counts = {grass: 0, rabbit: 0, fox: 0};
+            gameState.organisms.forEach(org => {
+                if (org.isAlive) counts[org.type]++;
+            });
+            
+            // Check for extinction
+            if (counts.grass === 0) {
+                endGame(false, 'All grass was consumed! The ecosystem collapsed.');
+            } else if (counts.rabbit === 0) {
+                endGame(false, 'All rabbits died! Foxes will soon follow.');
+            } else if (counts.fox === 0) {
+                endGame(false, 'All foxes died! The ecosystem is incomplete.');
+            } else if (gameState.gameTime >= VICTORY_TIME) {
+                endGame(true, '');
+            }
+        }
+        
+        function endGame(victory, reason) {
+            gameState.phase = 'ended';
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+            
+            if (victory) {
+                document.getElementById('victory-modal').classList.add('visible');
+            } else {
+                document.getElementById('gameover-reason').textContent = reason;
+                document.getElementById('gameover-modal').classList.add('visible');
+            }
+        }
+        
+        function showInfo() {
+            alert('Ecosystem Simulation\n\nCreate a balanced ecosystem:\n• Place grass (producers)\n• Add rabbits (herbivores)\n• Add foxes (predators)\n\nGoal: Survive 10 days (5 minutes)\n\nTip: Use Trial Mode to see optimal placement zones. Balance is key!');
+        }
+        
+        function toggleGraphs() {
+            // Placeholder for graph toggle
+            alert('Graph feature coming soon!');
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            initGrid();
+            calculateDimensions();
+            
+            const field = document.getElementById('field');
+            field.addEventListener('mousedown', () => gameState.isPlacing = true);
+            field.addEventListener('mouseup', () => gameState.isPlacing = false);
+            field.addEventListener('mousemove', (e) => {
+                if (gameState.isPlacing) handleFieldTouch(e);
+            });
+            field.addEventListener('mousedown', handleFieldTouch);
+            
+            field.addEventListener('touchstart', (e) => {
+                gameState.isPlacing = true;
+                handleFieldTouch(e);
+            });
+            field.addEventListener('touchmove', handleFieldTouch);
+            field.addEventListener('touchend', () => gameState.isPlacing = false);
+            
+            window.addEventListener('resize', () => {
+                calculateDimensions();
+                gameState.organisms.forEach(updateOrganismPosition);
+            });
+        });
     </script>
 </body>
 </html>
